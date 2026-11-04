@@ -31,7 +31,7 @@ use crate::types::{CommandEntry, CommandName, DocSource};
 const DESCRIBE_PROMPT: &str = include_str!("prompts/describe.md");
 
 /// 提示词版本，参与 `source_hash`，变化即触发增量重建。
-pub const PROMPT_VERSION: u32 = 5;
+pub const PROMPT_VERSION: u32 = 6;
 
 /// 提示词中单个命令文档的字节上限。超出部分截断；校验仍用完整文档。
 const PROMPT_DOC_BYTES: usize = 16 * 1024;

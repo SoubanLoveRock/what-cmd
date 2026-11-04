@@ -9,7 +9,7 @@
 - 错误：每个模块定义自己的 `thiserror` 枚举；`main.rs` 用 `anyhow` 汇总，并按第 17 节映射退出码。
 - 所有权：路径和文本用 `String` / `PathBuf` 存储，函数参数优先借用（`&str`、`&Path`、`&[T]`）。
 - 纯函数优先：能不依赖文件系统和网络的逻辑，都写成纯函数，方便快照测试。
-- 异步：v1 只有 MCP server 需要异步（rmcp 基于 tokio），其余模块用同步代码。embedding 的 HTTP 调用同步阻塞即可。
+- 异步：v1 全部使用同步代码（MCP 与 tokio 已移除）。embedding 的 HTTP 调用同步阻塞即可。
 - 新类型：命令名用 `CommandName` 包装，只能由 `guard::name` 构造，避免未校验的字符串流入后续模块。
 - 网络：只有 `embed::openai` 与 `agent::claude` 的子进程会离开本机，其余模块不得发起网络请求。
 
@@ -31,10 +31,7 @@ cli ─┬─> generate ─┬─> scan
      ├─> auto ───────> scan, config
      ├─> usage
      ├─> index
-     ├─> config
-     └─> mcp ─┬─> docs ──> guard
-              ├─> guard
-              └─> generate::staging
+     └─> config
 ```
 
 约束：
@@ -59,7 +56,6 @@ pub mod embed;
 pub mod generate;
 pub mod guard;
 pub mod index;
-pub mod mcp;
 pub mod output;
 pub mod scan;
 pub mod search;
@@ -268,7 +264,7 @@ pub fn validate_param_description(desc: &str) -> Result<String, GuardError>;
 /// 示例按词匹配 rm、dd、mkfs，子串匹配 "> /dev/"、"chmod -R"、"chown -R"。
 pub fn is_dangerous(example: &str) -> bool;
 
-/// 输出清洗：去 ANSI 转义与退格，统一换行。供 docs 与 mcp 共用。
+/// 输出清洗：去 ANSI 转义与退格，统一换行。供 docs 使用。
 pub fn sanitize_text(raw: &str) -> String;
 ```
 
@@ -937,11 +933,6 @@ pub enum Command {
     Record {
         key: String,
     },
-    /// 以 stdio 运行 MCP server（由 Claude Code 拉起）
-    Mcp {
-        #[arg(long)]
-        run: String,
-    },
     /// 检查配置、索引、agent 能力、embedding 环境变量
     Doctor,
 }
@@ -961,6 +952,8 @@ pub enum ExitKind {
 `main.rs` 只做解析、调用、映射退出码，不含业务逻辑。`query` 的输出只写 stdout，所有状态与警告写 stderr。`--auto` 的 stderr 重定向到 `cache_dir/reindex.log`，日志只写该文件。
 
 ## 18. MCP 层（`mcp/`）
+
+> 已移除（2026-11-05）：reindex 改为程序给文档、模型返回 JSON，`mcp/` 模块、`whatcmd mcp` 子命令与 `rmcp`、`tokio` 依赖均已删除。以下仅作历史记录。
 
 ```rust
 // mcp/tools.rs

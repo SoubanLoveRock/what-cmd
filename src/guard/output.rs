@@ -1,7 +1,7 @@
 //! 描述与示例校验、危险标记、输出清洗。
 //!
 //! 描述与示例来自 agent 输出，视为不可信数据：去控制字符、限长度、
-//! 限条数。文档原文的清洗（`sanitize_text`）供 docs 与 mcp 共用。
+//! 限条数。文档原文的清洗（`sanitize_text`）供 docs 使用。
 
 use std::iter::Peekable;
 use std::str::Chars;

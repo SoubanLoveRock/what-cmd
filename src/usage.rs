@@ -1,11 +1,11 @@
-//! 使用记录：只读取与聚合，供查询时计算使用加分。
+//! 使用记录：读取与聚合供查询时计算使用加分，[`append`] 供 `whatcmd record` 追加。
 //!
-//! 写入（`whatcmd record`）尚未实现。文件每行只含 `key` 与 `at`，不含查询文本。
+//! 文件每行只含 `key` 与 `at`，不含查询文本。
 //! 无法解析的行记 `warn` 后跳过，不因单行损坏而让查询失败。
 
 use std::collections::HashMap;
-use std::fs;
-use std::io;
+use std::fs::{self, OpenOptions};
+use std::io::{self, Write};
 use std::ops::Range;
 use std::path::Path;
 
@@ -85,6 +85,33 @@ pub fn load_snapshot(path: &Path) -> Result<UsageSnapshot, UsageError> {
     Ok(snapshot)
 }
 
+/// key 的长度上限（字节）。
+const MAX_KEY_BYTES: usize = 256;
+
+/// 追加一条记录，只写 key 与 `now`（RFC 3339 UTC）。父目录不存在时创建。
+///
+/// key 为空、过长或含控制字符时拒绝，不写文件。整行一次写入，`O_APPEND` 保证并发追加不交错。
+pub fn append(path: &Path, key: &str, now: &str) -> Result<(), UsageError> {
+    if key.trim().is_empty() || key.len() > MAX_KEY_BYTES || key.chars().any(char::is_control) {
+        return Err(UsageError::BadKey);
+    }
+    if parse_rfc3339_utc(now).is_none() {
+        return Err(UsageError::BadTime);
+    }
+    if let Some(dir) = path.parent() {
+        fs::create_dir_all(dir)?;
+    }
+    let record = UsageRecord {
+        key: key.to_owned(),
+        at: now.to_owned(),
+    };
+    let mut line = serde_json::to_string(&record)?;
+    line.push('\n');
+    let mut file = OpenOptions::new().create(true).append(true).open(path)?;
+    file.write_all(line.as_bytes())?;
+    Ok(())
+}
+
 /// 解析严格的 `YYYY-MM-DDTHH:MM:SSZ`，返回 Unix 秒。格式不符返回 `None`。
 ///
 /// 只支持这一种写法，不引入时间库。
@@ -143,14 +170,64 @@ pub enum UsageError {
     /// 读取文件失败（不含文件不存在）。
     #[error("usage io: {0}")]
     Io(#[from] io::Error),
+    /// 序列化记录失败。
+    #[error("usage json: {0}")]
+    Json(#[from] serde_json::Error),
+    /// key 为空、过长或含控制字符。
+    #[error("usage key is empty, too long, or contains control characters")]
+    BadKey,
+    /// 时间不是 `YYYY-MM-DDTHH:MM:SSZ`。
+    #[error("usage timestamp is not RFC 3339 UTC")]
+    BadTime,
 }
 
 #[cfg(test)]
 mod tests {
     use std::fs;
 
-    use super::{UsageSnapshot, days_from_civil, load_snapshot, parse_rfc3339_utc};
+    use super::{
+        UsageError, UsageSnapshot, append, days_from_civil, load_snapshot, parse_rfc3339_utc,
+    };
     use crate::testutil::tempdir;
+
+    #[test]
+    fn append_creates_dir_and_round_trips() {
+        let dir = tempdir();
+        let path = dir.path().join("cache").join("usage.jsonl");
+        append(&path, "git pull", "2026-11-01T00:00:00Z").unwrap();
+        append(&path, "git pull", "2026-11-02T00:00:00Z").unwrap();
+        append(&path, "ls", "2026-11-02T00:00:00Z").unwrap();
+        let text = fs::read_to_string(&path).unwrap();
+        assert_eq!(text.lines().count(), 3);
+        assert_eq!(
+            text.lines().next().unwrap(),
+            "{\"key\":\"git pull\",\"at\":\"2026-11-01T00:00:00Z\"}"
+        );
+        let snap = load_snapshot(&path).unwrap();
+        let now = parse_rfc3339_utc("2026-11-03T00:00:00Z").unwrap();
+        assert_eq!(snap.stat("git pull", now).unwrap().0, 2);
+        assert_eq!(snap.stat("ls", now).unwrap().0, 1);
+    }
+
+    #[test]
+    fn append_rejects_bad_key_and_time() {
+        let dir = tempdir();
+        let path = dir.path().join("usage.jsonl");
+        let now = "2026-11-01T00:00:00Z";
+        assert!(matches!(append(&path, "", now), Err(UsageError::BadKey)));
+        assert!(matches!(append(&path, "  ", now), Err(UsageError::BadKey)));
+        assert!(matches!(
+            append(&path, "a\nb", now),
+            Err(UsageError::BadKey)
+        ));
+        let long = "x".repeat(257);
+        assert!(matches!(append(&path, &long, now), Err(UsageError::BadKey)));
+        assert!(matches!(
+            append(&path, "ls", "now"),
+            Err(UsageError::BadTime)
+        ));
+        assert!(!path.exists());
+    }
 
     #[test]
     fn parses_strict_utc_timestamps() {

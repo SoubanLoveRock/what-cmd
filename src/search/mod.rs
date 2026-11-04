@@ -119,6 +119,14 @@ impl Probe<'_> {
             return None;
         }
         let exact = node.key.to_lowercase() == self.normalized;
+        // 参数节点只在锚点正是其所属命令时单独作为候选；其余情况只通过子树分抬高所属命令。
+        // 参数数量约为命令的 5 倍、文本短，不折叠会挤占命令的名次。
+        if node.kind == NodeKind::Param
+            && !exact
+            && node.parent.as_deref() != self.anchor.key.as_deref()
+        {
+            return None;
+        }
         let descendants: Vec<(f32, usize)> = self
             .tree
             .descendants(&node.key)
@@ -295,13 +303,14 @@ mod tests {
 
     #[test]
     fn results_stay_under_anchor_subtree() {
-        // "branch" 的向量与 git clone --branch 相同。锚点为 git，ls 不应出现。
+        // "branch" 的向量与 git clone --branch 相同。锚点为 git，参数折叠进 git clone，ls 不应出现。
         let fake = FakeEmbedder::new(DIMS).with("branch", one_hot(2));
         let got = run("git ", "branch", &fake).unwrap();
-        assert_eq!(got[0].key, "git clone --branch");
-        assert_eq!(got[0].insert, "clone --branch");
+        assert_eq!(got[0].key, "git clone");
+        assert_eq!(got[0].insert, "clone");
         assert_eq!(got[0].delete_tail, 0);
         assert!(got[0].via.is_none());
+        assert!(got.iter().all(|c| c.kind != crate::types::NodeKind::Param));
         // 每个候选都必须以 git 为祖先，按节点树判断，而不是按字符串前缀。
         let (index, _) = fixture();
         let tree = Tree::build(&index.nodes);
@@ -309,6 +318,15 @@ mod tests {
             got.iter()
                 .all(|c| tree.ancestors(&c.key).iter().any(|n| n.key == "git"))
         );
+    }
+
+    #[test]
+    fn params_are_candidates_when_anchor_is_their_command() {
+        let fake = FakeEmbedder::new(DIMS).with("branch", one_hot(2));
+        let got = run("git clone ", "branch", &fake).unwrap();
+        assert_eq!(got[0].key, "git clone --branch");
+        assert_eq!(got[0].insert, "--branch");
+        assert!(got[0].via.is_none());
     }
 
     #[test]

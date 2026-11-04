@@ -1,8 +1,7 @@
-//! 命令行的参数定义与子命令执行。D5 只实现 `query`。
+//! 命令行的参数定义与子命令执行：`query`、`record`、`reindex`。
 //!
 //! stdout 只输出候选行，状态与错误写 stderr。退出码见 [`ExitKind`]。
 
-use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -12,10 +11,8 @@ use crate::agent::claude::ClaudeBackend;
 use crate::agent::{detect, missing_capabilities};
 use crate::config;
 use crate::docs;
-use crate::embed::UnavailableEmbedder;
 use crate::embed::openai::OpenAiEmbedder;
 use crate::generate::merge::Stamp;
-use crate::generate::staging::{self, StagedRecord};
 use crate::generate::{self, Inputs, ReindexOptions};
 use crate::guard::name::validate_command;
 use crate::index;
@@ -23,7 +20,8 @@ use crate::output::{format_json, format_line};
 use crate::process::run_captured;
 use crate::scan::{self, find_in_path};
 use crate::search::{self, QueryContext, QueryOptions, SearchError};
-use crate::types::{CommandName, NodeKind};
+use crate::seed;
+use crate::types::CommandName;
 use crate::usage;
 
 /// `claude --help` 探测的超时（DESIGN 第 9.8 节）。
@@ -66,11 +64,10 @@ pub enum Command {
         #[arg(last = true)]
         text: Vec<String>,
     },
-    /// 以 stdio 运行 MCP server，供 `claude -p` 在 reindex 期间调用。
-    Mcp {
-        /// 本次 run 的标识，决定暂存区文件名。
-        #[arg(long)]
-        run: String,
+    /// 记录一次选中，追加到使用记录。
+    Record {
+        /// 被选中的节点 key，如 `git pull`。
+        key: String,
     },
     /// 扫描 PATH，生成描述与参数，写索引。
     Reindex {
@@ -117,7 +114,7 @@ pub fn run(cli: Cli) -> ExitKind {
             json,
             text,
         } => query(cli.config.as_deref(), &prefix, limit, json, &text.join(" ")),
-        Command::Mcp { run } => mcp(cli.config.as_deref(), run),
+        Command::Record { key } => record(cli.config.as_deref(), &key),
         Command::Reindex { full, names } => reindex(cli.config.as_deref(), full, names),
     }
 }
@@ -147,6 +144,7 @@ fn reindex(config_path: Option<&Path>, full: bool, names: Vec<String>) -> ExitKi
             return ExitKind::Embed;
         }
     };
+    install_seed(&cfg);
     let run_id = new_run_id();
     let roots = scan::current_path_commands();
     let stamp = Stamp {
@@ -228,7 +226,7 @@ fn claude_backend(cfg: &config::Config) -> Result<ClaudeBackend, String> {
     })
 }
 
-/// `reindex` 与 MCP 子进程共用的日志路径：缓存目录（`usage_file` 的父目录）下的 `reindex.log`，与 DESIGN 第 9.1 节一致。
+/// `reindex` 的日志路径：缓存目录（`usage_file` 的父目录）下的 `reindex.log`，与 DESIGN 第 9.1 节一致。
 fn reindex_log_path(cfg: &config::Config) -> Option<PathBuf> {
     cfg.paths
         .usage_file
@@ -280,87 +278,6 @@ fn rfc3339_utc(secs: i64) -> String {
     )
 }
 
-/// `mcp` 子命令：加载配置，以本次 run 的上下文启动 stdio MCP server。
-fn mcp(config_path: Option<&Path>, run_id: String) -> ExitKind {
-    let cfg = match config::load(config_path) {
-        Ok(cfg) => cfg,
-        Err(err) => {
-            eprintln!("whatcmd: {err}");
-            return ExitKind::Config;
-        }
-    };
-    let roots = crate::scan::current_path_commands();
-    let root_names: Vec<String> = roots
-        .iter()
-        .map(|entry| entry.name.as_str().to_owned())
-        .collect();
-    let known = match known_nodes(
-        &cfg.paths.index_dir,
-        &cfg.paths.staging_dir,
-        &run_id,
-        &root_names,
-    ) {
-        Ok(known) => known,
-        Err(msg) => {
-            eprintln!("whatcmd: {msg}");
-            return ExitKind::Config;
-        }
-    };
-    let ctx = crate::mcp::tools::ToolContext {
-        run_id,
-        staging_dir: cfg.paths.staging_dir.clone(),
-        roots,
-        known_nodes: known,
-        max_depth: cfg.reindex.max_depth,
-        docs: cfg.docs.clone(),
-        log: reindex_log_path(&cfg),
-        doc_cache: Default::default(),
-    };
-    match crate::mcp::serve_stdio(ctx) {
-        Ok(()) => ExitKind::Ok,
-        Err(err) => {
-            eprintln!("whatcmd: {err}");
-            ExitKind::Config
-        }
-    }
-}
-
-/// 本次 run 可见的节点 key：本次扫描到的根命令，加上索引中的命令节点，再加上本次 run 暂存区里声明过的子命令。
-///
-/// 根命令必须包含在内：它是子命令的父节点，索引为空（如刚删除旧索引）时只能由扫描结果提供。
-/// 子命令来自 `write_description` 的 `subcommands`，即下一轮要处理的节点，因此允许其子节点写入。
-/// 索引缺失时只含根命令与暂存区的部分。
-fn known_nodes(
-    index_dir: &Path,
-    staging_dir: &Path,
-    run_id: &str,
-    roots: &[String],
-) -> Result<Vec<String>, String> {
-    let mut keys: BTreeSet<String> = roots.iter().cloned().collect();
-    if let Some(stored) = index::load(index_dir).map_err(|err| err.to_string())? {
-        keys.extend(
-            stored
-                .index
-                .nodes
-                .iter()
-                .filter(|node| node.kind == NodeKind::Command)
-                .map(|node| node.key.clone()),
-        );
-    }
-    let records = staging::read_all(staging_dir, run_id).map_err(|err| err.to_string())?;
-    for rec in records {
-        if let StagedRecord::Command {
-            path, subcommands, ..
-        } = rec
-        {
-            for sub in subcommands {
-                keys.insert(format!("{} {sub}", path.join(" ")));
-            }
-        }
-    }
-    Ok(keys.into_iter().collect())
-}
-
 /// `query` 子命令：加载配置、索引与使用记录，执行查询，输出候选。
 fn query(
     config_path: Option<&Path>,
@@ -376,6 +293,7 @@ fn query(
             return ExitKind::Config;
         }
     };
+    install_seed(&cfg);
     let stored = match index::load(&cfg.paths.index_dir) {
         Ok(Some(stored)) => stored,
         Ok(None) => {
@@ -397,7 +315,13 @@ fn query(
             return ExitKind::Config;
         }
     };
-    let embedder = UnavailableEmbedder::from_config(&cfg.embedding);
+    let embedder = match OpenAiEmbedder::from_config(&cfg.embedding) {
+        Ok(embedder) => embedder,
+        Err(err) => {
+            eprintln!("whatcmd: {err}");
+            return ExitKind::Embed;
+        }
+    };
     let ctx = QueryContext {
         index: &stored.index,
         vectors: &stored.vectors,
@@ -428,6 +352,35 @@ fn query(
     }
 }
 
+/// `record` 子命令：把一次选中追加到 `usage_file`。只写 key 与当前时间。
+fn record(config_path: Option<&Path>, key: &str) -> ExitKind {
+    let cfg = match config::load(config_path) {
+        Ok(cfg) => cfg,
+        Err(err) => {
+            eprintln!("whatcmd: {err}");
+            return ExitKind::Config;
+        }
+    };
+    match usage::append(&cfg.paths.usage_file, key, &rfc3339_utc(now_unix())) {
+        Ok(()) => ExitKind::Ok,
+        Err(err) => {
+            eprintln!("whatcmd: {err}");
+            ExitKind::Config
+        }
+    }
+}
+
+/// 索引不存在时写入预置集。失败只记 warn，不影响后续流程。
+fn install_seed(cfg: &config::Config) {
+    if let Err(err) = seed::install_if_missing(
+        &cfg.paths.index_dir,
+        &cfg.embedding.model,
+        cfg.embedding.dimensions,
+    ) {
+        tracing::warn!(%err, "seed install failed");
+    }
+}
+
 /// 当前时间，Unix 秒。系统时钟早于 1970 时返回 0。
 fn now_unix() -> i64 {
     SystemTime::now()
@@ -442,49 +395,10 @@ mod tests {
 
     use clap::Parser;
 
-    use super::{Cli, Command, ExitKind, known_nodes, rfc3339_utc, run};
-    use crate::generate::staging::{self, StagedRecord};
+    use super::{Cli, Command, ExitKind, rfc3339_utc, run};
     use crate::index::save_atomic;
     use crate::search::testing::fixture;
     use crate::testutil::tempdir;
-
-    #[test]
-    fn known_nodes_include_subcommands_staged_in_this_run() {
-        let dir = tempdir();
-        let staging_dir = dir.path().join("staging");
-        staging::append(
-            &staging_dir,
-            "run-k",
-            &StagedRecord::Command {
-                path: vec!["git".to_owned()],
-                description: "d".to_owned(),
-                examples: Vec::new(),
-                subcommands: vec!["clone".to_owned()],
-            },
-        )
-        .unwrap();
-        let keys = known_nodes(
-            &dir.path().join("index"),
-            &staging_dir,
-            "run-k",
-            &["git".to_owned()],
-        )
-        .unwrap();
-        assert_eq!(keys, ["git", "git clone"]);
-    }
-
-    #[test]
-    fn known_nodes_include_scanned_roots_when_index_is_missing() {
-        let dir = tempdir();
-        let keys = known_nodes(
-            &dir.path().join("index"),
-            &dir.path().join("staging"),
-            "run-r",
-            &["git".to_owned()],
-        )
-        .unwrap();
-        assert_eq!(keys, ["git"]);
-    }
 
     /// 在 `dir` 下写一份指向 `dir` 内路径的配置，返回配置路径。
     fn write_config(dir: &Path) -> PathBuf {
@@ -551,12 +465,43 @@ mod tests {
     }
 
     #[test]
-    fn unavailable_embedder_maps_to_embed_exit_code() {
+    fn unreachable_embedding_endpoint_maps_to_embed_exit_code() {
         let dir = tempdir();
         let (index, vectors) = fixture();
         save_atomic(&dir.path().join("index"), &index, &vectors).unwrap();
         let config = write_config(dir.path());
+        // 端点 127.0.0.1:9 无服务，且测试环境中 api key 环境变量不存在，两种情况都应退出码 3。
         assert_eq!(run(query_cli(config, "ls")), ExitKind::Embed);
+    }
+
+    #[test]
+    fn record_appends_to_usage_file() {
+        let dir = tempdir();
+        let config = write_config(dir.path());
+        let cli = Cli::try_parse_from([
+            "whatcmd",
+            "--config",
+            config.to_str().unwrap(),
+            "record",
+            "git pull",
+        ])
+        .unwrap();
+        assert_eq!(run(cli), ExitKind::Ok);
+        let text = fs::read_to_string(dir.path().join("usage.jsonl")).unwrap();
+        assert!(text.starts_with("{\"key\":\"git pull\",\"at\":\""));
+        assert_eq!(text.lines().count(), 1);
+    }
+
+    #[test]
+    fn record_rejects_empty_key() {
+        let dir = tempdir();
+        let config = write_config(dir.path());
+        let cli = Cli {
+            config: Some(config),
+            cmd: Command::Record { key: String::new() },
+        };
+        assert_eq!(run(cli), ExitKind::Config);
+        assert!(!dir.path().join("usage.jsonl").exists());
     }
 
     #[test]

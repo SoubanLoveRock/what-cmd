@@ -57,7 +57,7 @@ v1 不做（见第 14 节）：
     → whatcmd record <key>（选中信号）
 ```
 
-reindex 路径不再启动 MCP。`whatcmd mcp --run <run_id>` 仅作为历史实现保留，见第 10 节。
+reindex 路径不启动 MCP。`whatcmd mcp` 子命令与 `rmcp` 依赖已于 2026-11-05 移除，第 10 节仅作历史记录。
 
 ## 4. 子命令与退出码
 
@@ -66,7 +66,6 @@ reindex 路径不再启动 MCP。`whatcmd mcp --run <run_id>` 仅作为历史实
 | `whatcmd query [--prefix <LBUFFER>] [--limit N] [--json] -- <text>` | 锚点解析 + 向量匹配，输出候选行 |
 | `whatcmd reindex [--full] [--names a,b] [--auto] [--quiet]` | 扫描 PATH，生成描述与参数，写索引 |
 | `whatcmd record <key>` | 记录一次选中，写入使用记录 |
-| `whatcmd mcp --run <run_id>` | stdio 运行 MCP server，供 Claude Code 调用 |
 | `whatcmd doctor` | 检查配置、索引、agent、embedding 环境变量是否就绪 |
 
 `--auto` 供 shell 初始化调用：指纹未变则直接退出，不输出任何内容（见第 9.1 节）。
@@ -116,9 +115,6 @@ src/
 │   ├── mod.rs       # trait AgentBackend、Capability、CapabilitySet
 │   ├── detect.rs    # 探测入口、--help 能力解析
 │   └── claude.rs    # Claude Code：参数拼装、输出解析
-├── mcp/
-│   ├── mod.rs       # rmcp stdio server，注册四个工具
-│   └── tools.rs     # 工具函数（不依赖 rmcp，便于测试）
 └── guard/
     ├── mod.rs       # 集中导出，便于审计
     ├── name.rs      # 命令名、子命令路径、参数名校验
@@ -127,7 +123,7 @@ src/
 
 依赖方向：
 
-- `cli`、`mcp` → `generate`、`search`、`index`、`config`、`usage`
+- `cli` → `generate`、`search`、`index`、`config`、`usage`
 - `generate` → `agent`、`docs`、`scan`、`index`、`embed`、`guard`、`seed`
 - `search` → `index`、`embed`、`usage`、`output`
 - `auto` → `scan`、`config`
@@ -442,7 +438,7 @@ claude -p "<批次提示词，含文档与输出格式>"
 
 ## 10. MCP 工具
 
-> 状态：已废弃。reindex 改为程序提供文档、模型直接返回 JSON（见 9.2 与 9.7），不再使用本节工具。`whatcmd mcp` 子命令与 `rmcp` 依赖在实现时移除。以下内容仅作为历史设计保留。
+> 状态：已废弃。reindex 改为程序提供文档、模型直接返回 JSON（见 9.2 与 9.7），不再使用本节工具。`whatcmd mcp` 子命令与 `rmcp` 依赖已于 2026-11-05 移除。以下内容仅作为历史设计保留。
 
 `whatcmd mcp --run <run_id>`，stdio，使用 `rmcp = "=3.8.0"`，`server` 特性。
 
@@ -524,7 +520,7 @@ v1 有四个工具：
 | 子命令发现方式 | 已实现：模型在 `subcommands` 中给出直接子命令，程序用 `--help` 检查后分轮展开（见 9.2、9.5）；个别子命令（如 `git history`）仍有遗漏，待跟进 |
 | 查询结果中 `via` 的展示格式 | 暂定 `git  (pull: ...)`，待样本确认 |
 | 打分系数（`decay`、`min_score`、`usage_*`） | 代码常量，待固定样本调参 |
-| rmcp 3.x 的 API | 不再需要。MCP 已废弃，残留代码待清理 |
+| rmcp 3.x 的 API | 不再需要。MCP 代码与依赖已移除（2026-11-05） |
 | embedding 的 HTTP 客户端与精确版本 | 已选定 `ureq =3.5.1`（rustls、json），见 DEVLOG |
 | 快捷键 | `Ctrl-G` |
 

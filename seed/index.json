@@ -1,0 +1,3482 @@
+{
+ "schema_version": 2,
+ "built_at": "2026-11-04T18:18:12Z",
+ "generator": {
+  "backend": "claude-code",
+  "agent_version": "2.1.296 (Claude Code)",
+  "prompt_version": 6
+ },
+ "embedding": {
+  "model": "BAAI/bge-m3",
+  "dimensions": 1024
+ },
+ "vectors_sha256": "sha256:f9abc645d54d3c9aef3f0f8b2bb8bf2c2ae89b5d79335549a80ddcb6d0bd9398",
+ "nodes": [
+  {
+   "key": "ar",
+   "kind": "command",
+   "parent": null,
+   "name": "ar",
+   "description": "Creates and maintains library archives, combining files into one archive and adding, replacing, deleting, or extracting its members. Members are named by the last component of their paths. Use it to bundle object files into a static library, list what is inside a library, or pull a single file back out of one.",
+   "examples": [
+    "ar -rcs libutil.a util.o parse.o",
+    "ar -t libutil.a",
+    "ar -x libutil.a util.o"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:0c740f9288000cf94fe1ca9cc20ef2941dbe423146b39d6a41493c24a0b57303",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 0
+  },
+  {
+   "key": "asa",
+   "kind": "command",
+   "parent": null,
+   "name": "asa",
+   "description": "Reads files sequentially and maps FORTRAN carriage-control characters to line-printer control sequences, writing the result to standard output. Each line's first character sets its spacing or page break. Use it to view or print output from an older FORTRAN program with its spacing and page breaks intact.",
+   "examples": [
+    "asa fortran-output.txt",
+    "./simulate | asa > formatted.txt",
+    "asa run.log more"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:9c98af581e68e1b45b61918a8c2208454391a9162da3eff31a07e63e0a53e9fa",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 1
+  },
+  {
+   "key": "at",
+   "kind": "command",
+   "parent": null,
+   "name": "at",
+   "description": "Queues commands to execute at a specified time, reading them from standard input or a file and running them with sh. Times can be given as clock times, relative offsets, or dates, and jobs can be listed or removed. Use it to run a task at a set time, like tonight at 11 or in two hours, or to schedule a reminder command.",
+   "examples": [
+    "echo 'tar -czf ~/notes.tgz ~/notes' | at 11pm",
+    "echo 'open -a Calendar' | at now + 2 minutes",
+    "at -l"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:be0317b3061a8065fa705508a9b119eab87fcaf5a91092368c587c94151cc5e2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 2
+  },
+  {
+   "key": "awk",
+   "kind": "command",
+   "parent": null,
+   "name": "awk",
+   "description": "awk scans input files for lines that match patterns and performs actions on them, splitting each line into fields. Use it to pull a column out of a text report, add up a set of numbers, or filter lines by their content.",
+   "examples": [
+    "awk '{ print $2, $1 }' data.txt",
+    "awk '{ s += $1 } END { print s }' numbers.txt",
+    "awk -F, '{ print $3 }' report.csv"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:fb14c3c21cd1b7a30c3d1c3a9644f076ac8a410f98e547d487c8bfca6f89b515",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 3
+  },
+  {
+   "key": "basename",
+   "kind": "command",
+   "parent": null,
+   "name": "basename",
+   "description": "basename deletes everything up to the last slash in a string, and removes an optional suffix. dirname does the opposite and keeps only the directory portion. The result is written to standard output. Use it to get just the file name from a full path, or to strip the file name and keep the folder.",
+   "examples": [
+    "basename /usr/local/bin/python3",
+    "basename -s .txt notes.txt",
+    "dirname /usr/bin/trail"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:ce49cc2464e6894f041feac04753141c109babaf7f78121ae499509f42f06e41",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 4
+  },
+  {
+   "key": "batch",
+   "kind": "command",
+   "parent": null,
+   "name": "batch",
+   "description": "Queues commands read from standard input or a file and executes them with sh when the system load level permits. The working directory and environment are kept from the time of invocation. Use it to run a heavy task later when the machine is free, or to hold off a job until the system is quiet.",
+   "examples": [
+    "echo 'tar -czf ~/notes.tgz ~/notes' | batch",
+    "batch -f compress-logs.sh",
+    "echo 'make build' | batch -q b"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:be0317b3061a8065fa705508a9b119eab87fcaf5a91092368c587c94151cc5e2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 5
+  },
+  {
+   "key": "bc",
+   "kind": "command",
+   "parent": null,
+   "name": "bc",
+   "description": "bc is an arbitrary-precision decimal arithmetic language and calculator that runs interactively or from files. Use it to do math with large numbers or decimals, or to run a quick calculation in the terminal.",
+   "examples": [
+    "bc -l",
+    "echo '2^100' | bc",
+    "bc -e 'scale=4; 22/7'"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:63ee4350fa22b4ebfbba0689262e3f752e7ec7c4be31680691d68cb34389b80e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 6
+  },
+  {
+   "key": "bc --expression",
+   "kind": "param",
+   "parent": "bc",
+   "name": "--expression",
+   "description": "Evaluates the given expression before reading input.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:63ee4350fa22b4ebfbba0689262e3f752e7ec7c4be31680691d68cb34389b80e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 7
+  },
+  {
+   "key": "bc --file",
+   "kind": "param",
+   "parent": "bc",
+   "name": "--file",
+   "description": "Reads and evaluates the given file before reading input.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:63ee4350fa22b4ebfbba0689262e3f752e7ec7c4be31680691d68cb34389b80e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 8
+  },
+  {
+   "key": "bc --global-stacks",
+   "kind": "param",
+   "parent": "bc",
+   "name": "--global-stacks",
+   "description": "Turns ibase, obase, scale, and seed into stacks saved for each function call.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:63ee4350fa22b4ebfbba0689262e3f752e7ec7c4be31680691d68cb34389b80e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 9
+  },
+  {
+   "key": "c99",
+   "kind": "command",
+   "parent": null,
+   "name": "c99",
+   "description": "c99 is the standard C language compiler, which compiles C source files and links them with libraries into an executable. Object files can be kept without linking. Use it to build a C program from source files, with optimization or debug symbols if you need them.",
+   "examples": [
+    "c99 -o hello hello.c",
+    "c99 -O2 -o app main.c util.c"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:d4135e1fa5019f3b99ade363adeeb826c357c82bff8929456cb1c6765f50d53b",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 10
+  },
+  {
+   "key": "cal",
+   "kind": "command",
+   "parent": null,
+   "name": "cal",
+   "description": "Displays a calendar for the current month, a given month, or a whole year, and can show the date of Easter. Use it to see this month's calendar, look up a date in another year, or check the week numbers.",
+   "examples": [
+    "cal",
+    "cal 11 2026",
+    "cal -y 2027"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:4e289f6f377326932f917793ba9c29a2fed4d3dd5736f2052857cfb518808f92",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 11
+  },
+  {
+   "key": "cat",
+   "kind": "command",
+   "parent": null,
+   "name": "cat",
+   "description": "The cat utility reads the named files sequentially and writes them to the standard output, processing operands in command-line order. Use it to print a file to the screen, join several files into one, or make a copy of a file's contents.",
+   "examples": [
+    "cat notes.txt",
+    "cat part1.txt part2.txt > full.txt",
+    "cat -n main.c"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:c55a517899301f6b474b101b0ab50e64af5d300d577e5c22126e856b8f691ca9",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 12
+  },
+  {
+   "key": "chgrp",
+   "kind": "command",
+   "parent": null,
+   "name": "chgrp",
+   "description": "chgrp sets the group ID of each file operand to the specified group, and can apply the change across whole file hierarchies. Use it to change which group owns a file or folder, such as giving a team access to a shared directory.",
+   "examples": [
+    "chgrp staff report.txt",
+    "chgrp -R staff ~/shared",
+    "chgrp -n 20 build.log"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:bb8c811ccd8b4364f0f3fba6ac8ab657ef171ad628dc5bc5ec491ab550a83e5e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 13
+  },
+  {
+   "key": "chmod",
+   "kind": "command",
+   "parent": null,
+   "name": "chmod",
+   "description": "The chmod utility modifies the file mode bits of the listed files, using absolute octal modes or symbolic modes such as u+x. It can also change Access Control Lists with the ACL options. Use it to make a script runnable, keep a file private from others, or fix permissions across a folder tree.",
+   "examples": [
+    "chmod +x deploy.sh",
+    "chmod 600 secrets.txt",
+    "chmod -R go-w project"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:2f8d84e721afa01453db00e4d31e7362bd7dcefe3122fe941c1efde9670bdc6c",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 14
+  },
+  {
+   "key": "chown",
+   "kind": "command",
+   "parent": null,
+   "name": "chown",
+   "description": "The chown utility changes the user ID and/or the group ID of the specified files. With -R it changes whole file hierarchies, and symbolic links are left unchanged unless -h is used. Use it to change who owns a file or folder, or to hand a project over to another user or group, such as fixing ownership of files on the server.",
+   "examples": [
+    "chown -R alice:staff ./project",
+    "chown :staff shared.txt",
+    "chown -v alice notes.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:aafc9165ae28a5ae9415260f4e7233b61c102c0d9bd283bb4fd344b823238a51",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 15
+  },
+  {
+   "key": "cksum",
+   "kind": "command",
+   "parent": null,
+   "name": "cksum",
+   "description": "Writes a CRC checksum, the total octet count, and the file name for each input file, or for standard input. Use it to verify a download, check that two files match, or get a quick checksum for a file.",
+   "examples": [
+    "cksum archive.tar.gz",
+    "cksum -o 2 image.iso",
+    "cksum installer.pkg notes.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:55ff87e1e83d90e025a035ba0d0ccff45e2420f909e4931cdefae61e082c4015",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 16
+  },
+  {
+   "key": "cmp",
+   "kind": "command",
+   "parent": null,
+   "name": "cmp",
+   "description": "cmp compares two files of any type and reports the byte and line number of the first difference. It stays silent when the files are the same. Use it to check whether two files match, or to find where a binary file first differs from another.",
+   "examples": [
+    "cmp file1.txt file2.txt",
+    "cmp -l backup.bin original.bin",
+    "cmp -s old.conf new.conf"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:f24995dbd85602ea316972e516f87dbc9e7f0c945393ac7137acc9e71a2b7e72",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 17
+  },
+  {
+   "key": "comm",
+   "kind": "command",
+   "parent": null,
+   "name": "comm",
+   "description": "Compares two sorted files line by line and writes three columns: lines only in file1, lines only in file2, and lines in both. Use it to find lines two lists share, spot what was added or removed between files, or compare lists while ignoring case.",
+   "examples": [
+    "comm -12 sorted_a.txt sorted_b.txt",
+    "comm -23 old_list.txt new_list.txt",
+    "comm -13 old_list.txt new_list.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:055972ccb48a3e7bd7f50a2941075b10e50c7931b83aaddc512da3057cad34ce",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 18
+  },
+  {
+   "key": "compress",
+   "kind": "command",
+   "parent": null,
+   "name": "compress",
+   "description": "compress reduces file size using adaptive Lempel-Ziv coding and renames each file with a .Z extension. uncompress restores the original file by removing that extension. Files that would not shrink are left unchanged. Use it to make a file smaller to save disk space, or unpack a .Z file back to its original form.",
+   "examples": [
+    "compress -v notes.txt",
+    "compress -f big.log",
+    "uncompress notes.txt.Z"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:eb841b6d960b13880ab6d439383dc8632f7fe3f033115ea6358c038c0fec419e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 19
+  },
+  {
+   "key": "cp",
+   "kind": "command",
+   "parent": null,
+   "name": "cp",
+   "description": "The cp utility copies the contents of source_file to target_file, or copies each source file into a target directory, and the original names are not changed. The -R option copies a directory together with its whole subtree. Use it to copy a file, duplicate a folder with everything in it, or back up a file before editing it.",
+   "examples": [
+    "cp notes.txt notes-backup.txt",
+    "cp -R project project-old",
+    "cp -p config.yml ~/backup/"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:5d14ff04b6c1c05852ecb53a2bdf09e6b878ba5e0bb362f05bb3463fafa7f80e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 20
+  },
+  {
+   "key": "crontab",
+   "kind": "command",
+   "parent": null,
+   "name": "crontab",
+   "description": "crontab installs, removes, or lists the crontab files that drive the cron daemon for each user. Use it to schedule a command to run every night, or to see and clear a user's existing scheduled jobs.",
+   "examples": [
+    "crontab -l",
+    "crontab -e",
+    "crontab mytab.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:9c4ae66758c25ad763f7ff60a615708f09e3a15dfa63b9e2191da64cb7ec260e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 21
+  },
+  {
+   "key": "csplit",
+   "kind": "command",
+   "parent": null,
+   "name": "csplit",
+   "description": "csplit splits a file into pieces at lines matching given patterns or at given line numbers, writing each piece to a new file. Use it to cut a long log or text file into smaller parts at a marker line.",
+   "examples": [
+    "csplit -k access.log 1000",
+    "csplit -f part- -n 3 big.txt '/^Chapter/' '{9}'",
+    "csplit -k foo.1 '%^\\.Sh%' '/^\\.Sh/' '{20}'"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:5487721a202240bea7016c890a3a65cab9773ea80cb8eaa86ba9613e201ae9e4",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 22
+  },
+  {
+   "key": "ctags",
+   "kind": "command",
+   "parent": null,
+   "name": "ctags",
+   "description": "ctags creates a tags file for ex from C, Pascal, Fortran, yacc, lex, and Lisp sources, recording where each object is defined. It can also print an index of object names and their lines to standard output. Use it to jump to function definitions in a codebase, or build a quick index of a project.",
+   "examples": [
+    "ctags -f tags *.c",
+    "ctags -x main.c"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:922c6d752f86672e5541d34b645f103c86015c4f47f7d1c8d5c74d0d4b36b656",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 23
+  },
+  {
+   "key": "cut",
+   "kind": "command",
+   "parent": null,
+   "name": "cut",
+   "description": "Cuts out selected portions of each line from the given files or standard input, selecting by byte, character, or field positions. The selected parts are written to standard output. Use it to pull a single column out of a CSV or log file, keep the first few characters of each line, or grab certain fields from a colon-separated file.",
+   "examples": [
+    "cut -d: -f1,7 /etc/passwd",
+    "cut -c1-10 names.txt",
+    "ps aux | cut -c1-40"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:3e27974d9d3111b50d60980d0f69143ebaa775ff21c542520f7c722b1ee80ab9",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 24
+  },
+  {
+   "key": "date",
+   "kind": "command",
+   "parent": null,
+   "name": "date",
+   "description": "The date utility displays the date and time read from the kernel clock, or sets it when given a time operand. A leading plus sign takes a format string that controls the output layout. Use it to show the current time, print a timestamp in a custom format, or find the date a few days from now.",
+   "examples": [
+    "date",
+    "date \"+%Y-%m-%d %H:%M\"",
+    "date -v+3d"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:0c6a995d01c429ae3e0b0646e0f9dccb7004074c24dc66913546702b914ce42d",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 25
+  },
+  {
+   "key": "dd",
+   "kind": "command",
+   "parent": null,
+   "name": "dd",
+   "description": "The dd utility copies its standard input to its standard output, or copies an input file to an output file, in blocks with optional conversions. Operands such as bs, count, and skip set the block size and how much data is copied. Use it to copy a raw disk image, make a file of a fixed size, or copy part of a file.",
+   "examples": [
+    "dd if=input.bin of=output.bin bs=1m",
+    "dd if=/dev/zero of=test.img bs=1m count=10",
+    "dd if=file.bin of=file.txt conv=parnone"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:a1e46de555aedb1d5d8a802f612fc73986e42386b82b1c68496876a35a4e8abf",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 26
+  },
+  {
+   "key": "df",
+   "kind": "command",
+   "parent": null,
+   "name": "df",
+   "description": "The df utility displays statistics about the amount of free disk space on mounted file systems, or on the file system that holds a given file. Use it to check how much room is left on your drives, or which volume is running low.",
+   "examples": [
+    "df -h",
+    "df -h ~",
+    "df -Y -h"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:802081be7f155a5bd07bbaaf8594fcc1be895fbf3340a06b732ac5ea29dc8790",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 27
+  },
+  {
+   "key": "df --libxo",
+   "kind": "param",
+   "parent": "df",
+   "name": "--libxo",
+   "description": "Generates output in one of several human or machine readable formats through libxo.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:802081be7f155a5bd07bbaaf8594fcc1be895fbf3340a06b732ac5ea29dc8790",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 28
+  },
+  {
+   "key": "diff",
+   "kind": "command",
+   "parent": null,
+   "name": "diff",
+   "description": "Compares the contents of file1 and file2, or two directories, and writes the changes needed to turn one into the other. Use it to see what changed between two versions of a file, compare folders, or produce a patch-style summary of edits.",
+   "examples": [
+    "diff -u old.txt new.txt",
+    "diff -r project_v1 project_v2",
+    "diff -y draft_a.md draft_b.md"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 29
+  },
+  {
+   "key": "diff --changed-group-format",
+   "kind": "param",
+   "parent": "diff",
+   "name": "--changed-group-format",
+   "description": "Sets a custom format for groups of changed lines.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 30
+  },
+  {
+   "key": "diff --color",
+   "kind": "param",
+   "parent": "diff",
+   "name": "--color",
+   "description": "Colors additions and removals, depending on whether set to never, always, or auto.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 31
+  },
+  {
+   "key": "diff --help",
+   "kind": "param",
+   "parent": "diff",
+   "name": "--help",
+   "description": "Prints a summary of options and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 32
+  },
+  {
+   "key": "diff --ignore-file-name-case",
+   "kind": "param",
+   "parent": "diff",
+   "name": "--ignore-file-name-case",
+   "description": "Ignores letter case when comparing file names in directories.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 33
+  },
+  {
+   "key": "diff --no-dereference",
+   "kind": "param",
+   "parent": "diff",
+   "name": "--no-dereference",
+   "description": "Compares symbolic links themselves instead of the files they point to.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 34
+  },
+  {
+   "key": "diff --no-ignore-file-name-case",
+   "kind": "param",
+   "parent": "diff",
+   "name": "--no-ignore-file-name-case",
+   "description": "Keeps file name case significant when comparing directories.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 35
+  },
+  {
+   "key": "diff --normal",
+   "kind": "param",
+   "parent": "diff",
+   "name": "--normal",
+   "description": "Uses the default diff output format.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 36
+  },
+  {
+   "key": "diff --speed-large-files",
+   "kind": "param",
+   "parent": "diff",
+   "name": "--speed-large-files",
+   "description": "Accepted for compatibility with GNU diff. Has no effect.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 37
+  },
+  {
+   "key": "diff --strip-trailing-cr",
+   "kind": "param",
+   "parent": "diff",
+   "name": "--strip-trailing-cr",
+   "description": "Removes carriage returns at line ends before comparing.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 38
+  },
+  {
+   "key": "diff --suppress-common-lines",
+   "kind": "param",
+   "parent": "diff",
+   "name": "--suppress-common-lines",
+   "description": "Hides identical lines in side-by-side output.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 39
+  },
+  {
+   "key": "diff --version",
+   "kind": "param",
+   "parent": "diff",
+   "name": "--version",
+   "description": "Prints the version string and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:32ed7a1540cc7ca1aa92ee758e5d9ced97d7a0eb040a9bff83f9507cdcad2816",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 40
+  },
+  {
+   "key": "dirname",
+   "kind": "command",
+   "parent": null,
+   "name": "dirname",
+   "description": "Deletes the filename portion of a pathname, from the last slash to the end of the string, and writes the remaining directory path to standard output. Trailing slashes are stripped first. Use it to get the folder a file lives in, or to pull a directory path out of a script variable.",
+   "examples": [
+    "dirname ~/Documents/report.pdf",
+    "dirname \"$(which python3)\"",
+    "dirname /usr/local/bin/tool"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:ce49cc2464e6894f041feac04753141c109babaf7f78121ae499509f42f06e41",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 41
+  },
+  {
+   "key": "du",
+   "kind": "command",
+   "parent": null,
+   "name": "du",
+   "description": "du displays the file system block usage for each file argument and for each directory in the file hierarchy below it. Use it to see how much disk space a folder takes up, or to find out what is filling the disk.",
+   "examples": [
+    "du -ah ~/Documents",
+    "du -hs ~/Library/Caches",
+    "du -ch /usr/src/sys/kern/*.c"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:4eba5336c4e5e47b5c15f3eade016f218363256bc78918c1a91df36ca17d0871",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 42
+  },
+  {
+   "key": "du --libxo",
+   "kind": "param",
+   "parent": "du",
+   "name": "--libxo",
+   "description": "Generates output through libxo in human or machine-readable formats.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4eba5336c4e5e47b5c15f3eade016f218363256bc78918c1a91df36ca17d0871",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 43
+  },
+  {
+   "key": "du --si",
+   "kind": "param",
+   "parent": "du",
+   "name": "--si",
+   "description": "Prints sizes in human-readable form using powers of 1000 instead of 1024.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4eba5336c4e5e47b5c15f3eade016f218363256bc78918c1a91df36ca17d0871",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 44
+  },
+  {
+   "key": "echo",
+   "kind": "command",
+   "parent": null,
+   "name": "echo",
+   "description": "The echo utility writes its operands, separated by single blanks and followed by a newline, to the standard output. Use it to print a message from a script, or to show the value of a shell variable.",
+   "examples": [
+    "echo \"hello world\"",
+    "echo $HOME",
+    "echo -n \"Enter value: \""
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:22454b1788fabfce3e2c4be8f7035fcc1a6c15e4de039039aef63fbd0a62003c",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 45
+  },
+  {
+   "key": "ed",
+   "kind": "command",
+   "parent": null,
+   "name": "ed",
+   "description": "The ed utility is a line-oriented text editor that creates, displays, modifies, and manipulates text files. It works on a buffer copy of the file, and changes are saved only with the w command. Use it to edit a text file from the terminal without a full-screen editor, or to script edits to a file.",
+   "examples": [
+    "ed notes.txt",
+    "ed -s config.txt",
+    "ed -p \"> \" draft.md"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:1ecb432c480d6d7b791ae0ec497a39c9a690c2b8430f4b5e7da061fbae288e0d",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 46
+  },
+  {
+   "key": "env",
+   "kind": "command",
+   "parent": null,
+   "name": "env",
+   "description": "Executes a utility after setting name=value variables in the environment, or prints the current environment variables when no utility is given. Use it to run a program with a different set of variables, clear the environment first, or check which variables are set.",
+   "examples": [
+    "env",
+    "env -i PATH=/usr/bin:/bin ls",
+    "env DEBUG=1 node app.js"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:dfc204ff9c18212676605e5ea721c984770df29b6578ad691713f2032aed253e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 47
+  },
+  {
+   "key": "ex",
+   "kind": "command",
+   "parent": null,
+   "name": "ex",
+   "description": "Starts Vim in Ex mode, a line-oriented way to edit one or more files. The documentation's options also cover read-only, diff, and GUI startup. Use it to edit a file from the terminal, or to run a quick batch of editing commands on a file without the full-screen editor.",
+   "examples": [
+    "ex notes.txt",
+    "ex -s -c '%s/foo/bar/g' -c 'wq' notes.txt",
+    "ex -c 'set number' config.yml"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 48
+  },
+  {
+   "key": "ex --clean",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--clean",
+   "description": "Skips personal configuration such as vimrc and plugins, to check a clean setup.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 49
+  },
+  {
+   "key": "ex --cmd",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--cmd",
+   "description": "Runs the given command before any vimrc file is loaded.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 50
+  },
+  {
+   "key": "ex --echo-wid",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--echo-wid",
+   "description": "On GTK GUI builds, prints the window ID to standard output.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 51
+  },
+  {
+   "key": "ex --gui-dialog-file",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--gui-dialog-file",
+   "description": "Writes GUI dialog messages to a file instead of showing a dialog.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 52
+  },
+  {
+   "key": "ex --help",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--help",
+   "description": "Prints a summary of command line arguments and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 53
+  },
+  {
+   "key": "ex --literal",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--literal",
+   "description": "Treats file name arguments literally, without wildcard expansion.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 54
+  },
+  {
+   "key": "ex --log",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--log",
+   "description": "Starts channel logging and writes its entries to the given file.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 55
+  },
+  {
+   "key": "ex --nofork",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--nofork",
+   "description": "Keeps the GUI version in the foreground instead of detaching from the shell.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 56
+  },
+  {
+   "key": "ex --noplugin",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--noplugin",
+   "description": "Skips loading plugins.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 57
+  },
+  {
+   "key": "ex --not-a-term",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--not-a-term",
+   "description": "Suppresses the warning and startup delay when input or output is not a terminal.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 58
+  },
+  {
+   "key": "ex --remote",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--remote",
+   "description": "Sends the given files to a running Vim server to edit them.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 59
+  },
+  {
+   "key": "ex --remote-expr",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--remote-expr",
+   "description": "Evaluates an expression in a running Vim server and prints the result.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 60
+  },
+  {
+   "key": "ex --remote-send",
+   "kind": "param",
+   "parent": "ex",
+   "name": "--remote-send",
+   "description": "Sends the given keys to a running Vim server.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 61
+  },
+  {
+   "key": "expand",
+   "kind": "command",
+   "parent": null,
+   "name": "expand",
+   "description": "expand converts tabs in the named files or standard input into blanks, and unexpand puts tabs back into the data. Backspace characters are kept in the output. Use it to turn tabs into spaces before sorting or lining up columns, or to convert spaces back into tabs.",
+   "examples": [
+    "expand -t 4 main.c",
+    "unexpand -a notes.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:89d260770f089f33a00305eaf21b805258a05238d68765131efbf94e94fc60da",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 62
+  },
+  {
+   "key": "expr",
+   "kind": "command",
+   "parent": null,
+   "name": "expr",
+   "description": "The expr utility evaluates an expression and writes the result to standard output. It supports integer arithmetic, comparisons, and string matching, with each operator passed as a separate argument. Use it to add or multiply numbers in a shell script, or to pull a filename out of a path.",
+   "examples": [
+    "expr 7 + 5",
+    "expr 10 \\* 4",
+    "expr 17 / 5"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:74f81d01f7611e8f505f169636b761f9a073b169ef1ea8572af61638fff7b3b9",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 63
+  },
+  {
+   "key": "false",
+   "kind": "command",
+   "parent": null,
+   "name": "false",
+   "description": "The false utility always returns with a non-zero exit code and writes nothing. Use it to make a script or shell condition fail on purpose, or as a placeholder in tests.",
+   "examples": [
+    "false; echo $?",
+    "false || echo 'it failed'",
+    "false && echo never"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:0a8f4f8a46c2d3d1a9a0d946ce373a729618cee45d0149cbacfeb16fb753fe95",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 64
+  },
+  {
+   "key": "file",
+   "kind": "command",
+   "parent": null,
+   "name": "file",
+   "description": "file tests each argument and classifies it using filesystem, magic, and language tests, then prints the file type. Use it to find out what kind of file something is, such as whether it is text, a binary, or an archive.",
+   "examples": [
+    "file photo.jpg",
+    "file -I report.pdf",
+    "file *"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:771400908fa5900cfd780b95072bfebc3e46c5e5c21612b3ad71948b86c29827",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 65
+  },
+  {
+   "key": "file --exclude-quiet",
+   "kind": "param",
+   "parent": "file",
+   "name": "--exclude-quiet",
+   "description": "Skips named tests but ignores tests that file does not know about.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:771400908fa5900cfd780b95072bfebc3e46c5e5c21612b3ad71948b86c29827",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 66
+  },
+  {
+   "key": "file --extension",
+   "kind": "param",
+   "parent": "file",
+   "name": "--extension",
+   "description": "Prints a slash-separated list of valid extensions for the file type.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:771400908fa5900cfd780b95072bfebc3e46c5e5c21612b3ad71948b86c29827",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 67
+  },
+  {
+   "key": "file --help",
+   "kind": "param",
+   "parent": "file",
+   "name": "--help",
+   "description": "Prints a help message and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:771400908fa5900cfd780b95072bfebc3e46c5e5c21612b3ad71948b86c29827",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 68
+  },
+  {
+   "key": "file --mime-type",
+   "kind": "param",
+   "parent": "file",
+   "name": "--mime-type",
+   "description": "Prints only the MIME type.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:771400908fa5900cfd780b95072bfebc3e46c5e5c21612b3ad71948b86c29827",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 69
+  },
+  {
+   "key": "find",
+   "kind": "command",
+   "parent": null,
+   "name": "find",
+   "description": "The find utility recursively descends the directory tree for each path listed, evaluating an expression against every file it reaches. Use it to hunt down files by name, size, age, or type, or to run a command on everything it finds.",
+   "examples": [
+    "find . -name '*.log' -mtime +7 -print",
+    "find ~/Downloads -type f -size +100M -print",
+    "find . -name '*.tmp' -print"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:054d1a280b63a24a30fda71299ca12e08551819f344e4ca14a8743802eed6b05",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 70
+  },
+  {
+   "key": "fold",
+   "kind": "command",
+   "parent": null,
+   "name": "fold",
+   "description": "Folds the contents of the given files, or standard input, by breaking long lines so they fit a maximum width, 80 columns by default. Lines can be broken at the width or after the last blank within it. Use it to wrap long lines of text to a narrow terminal, or to keep output within a fixed column limit.",
+   "examples": [
+    "fold -w 60 README.md",
+    "fold -s -w 72 notes.txt",
+    "echo 'a long line of text' | fold -w 10"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:51413d0b14c2d62e36958a9ebf78dfbbcd6c4faa3138fb01e9d4a35291ec1a86",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 71
+  },
+  {
+   "key": "fuser",
+   "kind": "command",
+   "parent": null,
+   "name": "fuser",
+   "description": "The fuser utility lists the process IDs of processes on the local system that have one or more named files open, and reports how each file is being used. Use it to find out which program is holding a file, folder, or disk open and blocking an unmount or delete.",
+   "examples": [
+    "fuser -fu .",
+    "fuser -c /Volumes/Backup",
+    "fuser -u ~/Documents/report.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:b3e33edfafa2faac693f04618b2238059a67c7993b7ad8f9a0404348458d43a2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 72
+  },
+  {
+   "key": "gencat",
+   "kind": "command",
+   "parent": null,
+   "name": "gencat",
+   "description": "Merges NLS text source files into a formatted message catalog file, replacing messages that share a message number. Use it to build a translation catalog from message source files, or to add new strings to an existing catalog.",
+   "examples": [
+    "gencat messages.cat messages.msg",
+    "gencat app.cat en.msg fr.msg",
+    "gencat strings.cat new_strings.msg"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:06966be118eee075da4f24839f9daa43b2801c8d6ce6d7c7febebe535c45e7d1",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 73
+  },
+  {
+   "key": "getconf",
+   "kind": "command",
+   "parent": null,
+   "name": "getconf",
+   "description": "Prints the values of POSIX or X/Open path and system configuration variables, or the limits that apply to a given path. Use it to check the default PATH, look up the maximum file name length in a folder, or read a system limit.",
+   "examples": [
+    "getconf PATH",
+    "getconf NAME_MAX /tmp",
+    "getconf PAGESIZE"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:f2d6592974a214aa894f8736c9f9450077cac27d89daccc90ff8796d75f61aaf",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 74
+  },
+  {
+   "key": "grep",
+   "kind": "command",
+   "parent": null,
+   "name": "grep",
+   "description": "Searches input files, or standard input, for lines that match a pattern and writes the selected lines to standard output. Use it to find text in files, search a folder recursively for a word, or filter matching lines out of a log.",
+   "examples": [
+    "grep -rn \"TODO\" src/",
+    "grep -i \"error\" app.log",
+    "grep -v \"debug\" server.log"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 75
+  },
+  {
+   "key": "grep --binary-files",
+   "kind": "param",
+   "parent": "grep",
+   "name": "--binary-files",
+   "description": "Sets how binary files are handled: binary, without-match, or text.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 76
+  },
+  {
+   "key": "grep --colour",
+   "kind": "param",
+   "parent": "grep",
+   "name": "--colour",
+   "description": "Colors the matching text, with never, always, or auto as the setting.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 77
+  },
+  {
+   "key": "grep --exclude",
+   "kind": "param",
+   "parent": "grep",
+   "name": "--exclude",
+   "description": "Skips files whose names match the given pattern.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 78
+  },
+  {
+   "key": "grep --exclude-dir",
+   "kind": "param",
+   "parent": "grep",
+   "name": "--exclude-dir",
+   "description": "Skips directories whose names match the given pattern during recursive searches.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 79
+  },
+  {
+   "key": "grep --help",
+   "kind": "param",
+   "parent": "grep",
+   "name": "--help",
+   "description": "Prints a short help message and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 80
+  },
+  {
+   "key": "grep --include",
+   "kind": "param",
+   "parent": "grep",
+   "name": "--include",
+   "description": "Searches only files whose names match the given pattern.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 81
+  },
+  {
+   "key": "grep --include-dir",
+   "kind": "param",
+   "parent": "grep",
+   "name": "--include-dir",
+   "description": "Searches only directories whose names match the given pattern during recursive searches.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 82
+  },
+  {
+   "key": "grep --label",
+   "kind": "param",
+   "parent": "grep",
+   "name": "--label",
+   "description": "Replaces the name shown for standard input with the given label.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 83
+  },
+  {
+   "key": "grep --line-buffered",
+   "kind": "param",
+   "parent": "grep",
+   "name": "--line-buffered",
+   "description": "Flushes output after each line instead of in blocks.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 84
+  },
+  {
+   "key": "grep --mmap",
+   "kind": "param",
+   "parent": "grep",
+   "name": "--mmap",
+   "description": "Reads input with mmap instead of read.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 85
+  },
+  {
+   "key": "grep --null",
+   "kind": "param",
+   "parent": "grep",
+   "name": "--null",
+   "description": "Prints a zero byte after each file name.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4927dfd231f8ac2ad893bca3cf3d40f976abca3c44b63c5f2524999783e8d6ab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 86
+  },
+  {
+   "key": "head",
+   "kind": "command",
+   "parent": null,
+   "name": "head",
+   "description": "Displays the first lines or bytes of each specified file, or of standard input when no file is given, with a header for each file when several are listed. Use it to peek at the top of a file, see the first rows of a CSV, or check the start of a log.",
+   "examples": [
+    "head -n 20 access.log",
+    "head -c 100 data.bin",
+    "head -n 5 a.csv b.csv"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:ad0ad568ea65f6a44af07f84656cbd85a634619a7b92e871adff2f5045f4986e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 87
+  },
+  {
+   "key": "iconv",
+   "kind": "command",
+   "parent": null,
+   "name": "iconv",
+   "description": "iconv converts the codeset of a file, or of standard input, from one codeset to another and writes the converted text to standard output. Use it to change the text encoding of a file, such as turning a Latin-1 file into UTF-8.",
+   "examples": [
+    "iconv -f IBM273 -t UTF-8 file.txt > converted.txt",
+    "iconv -f ISO-8859-1 -t UTF-8 notes.txt > notes-utf8.txt",
+    "iconv -c -f UTF-8 -t ASCII messy.txt > clean.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:8b25ece29da8ed3dab715b1864da3ee61d0091a95514909b4fb44bb4649b8f86",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 88
+  },
+  {
+   "key": "id",
+   "kind": "command",
+   "parent": null,
+   "name": "id",
+   "description": "Displays the user and group names and numeric IDs of the calling process, or of a given user, to standard output. Both real and effective IDs are shown when they differ. Use it to check which account you are running as, see your group memberships, or confirm whether you have root access.",
+   "examples": [
+    "id",
+    "id -un",
+    "id -Gn"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:63a1358ecb5db34da6cb6a8efca1d1d165a24c179859a8486e7b320e0562b0d2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 89
+  },
+  {
+   "key": "ipcrm",
+   "kind": "command",
+   "parent": null,
+   "name": "ipcrm",
+   "description": "Removes System V message queues, semaphore sets, and shared memory segments, identified by their ID or key. Use it to clear out leftover shared memory, free a stuck message queue, or throw away IPC objects left behind by a crashed program.",
+   "examples": [
+    "ipcrm -q 42",
+    "ipcrm -m 65536",
+    "ipcrm -S 4660"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:86faa6502b4038790b8cd7bccd3b5dcd1163bc77de99a566d3c8df8119abfd06",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 90
+  },
+  {
+   "key": "ipcs",
+   "kind": "command",
+   "parent": null,
+   "name": "ipcs",
+   "description": "Reports the status of System V interprocess communication facilities, including shared memory, message queues, and semaphores. By default it lists all active facilities, and output can be narrowed to one type. Use it to see which shared memory segments or message queues are in use, or to find leftover IPC objects from a crashed program.",
+   "examples": [
+    "ipcs",
+    "ipcs -m",
+    "ipcs -q -o"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:889503b821d1f55d20621401c8ea5171cd630aaf0fc4995cb37e73bf5811899d",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 91
+  },
+  {
+   "key": "join",
+   "kind": "command",
+   "parent": null,
+   "name": "join",
+   "description": "join performs an equality join on two files and writes lines with identical join fields to standard output. Use it to merge two text files on a shared column, like matching records by an ID or name.",
+   "examples": [
+    "join names.txt ages.txt",
+    "join -t, -1 2 laureates.csv nationalities.csv",
+    "join -v1 -t, -1 2 a.csv b.csv"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:435b71a5774d92af9877765a0618fb226ae6c3d2e2b3c30fcbe781f9f58c765f",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 92
+  },
+  {
+   "key": "kill",
+   "kind": "command",
+   "parent": null,
+   "name": "kill",
+   "description": "The kill utility sends a signal to the processes named by their pid operands, using TERM by default. The -l option lists signal names, and -s chooses a different signal. Use it to stop a stuck program, end a process by its PID, or send a hangup to make a daemon reload its config.",
+   "examples": [
+    "kill 4821",
+    "kill -s HUP 507",
+    "kill -l"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:4526aa7b4ed7a54bc62c7c596e9236bef046bbbadfd09e099554cd38283746a5",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 93
+  },
+  {
+   "key": "lex",
+   "kind": "command",
+   "parent": null,
+   "name": "lex",
+   "description": "flex generates programs that perform pattern-matching on text, producing a C scanner from a set of rules. Use it to build a tokenizer for a small language or a text parser from a list of patterns.",
+   "examples": [
+    "lex -o lexer.c lexer.l",
+    "lex -i -o tokens.c tokens.l",
+    "lex --header-file=tokens.h -o tokens.c tokens.l"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:360bb1b804c8e67197b8716aeac887426e36385150244ff67dcd00a4d43a35c2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 94
+  },
+  {
+   "key": "lex --bison-bridge",
+   "kind": "param",
+   "parent": "lex",
+   "name": "--bison-bridge",
+   "description": "Generates a scanner for a Bison pure parser.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:360bb1b804c8e67197b8716aeac887426e36385150244ff67dcd00a4d43a35c2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 95
+  },
+  {
+   "key": "lex --bison-locations",
+   "kind": "param",
+   "parent": "lex",
+   "name": "--bison-locations",
+   "description": "Includes yylloc support for Bison.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:360bb1b804c8e67197b8716aeac887426e36385150244ff67dcd00a4d43a35c2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 96
+  },
+  {
+   "key": "lex --header-file",
+   "kind": "param",
+   "parent": "lex",
+   "name": "--header-file",
+   "description": "Creates a C header file in addition to the scanner.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:360bb1b804c8e67197b8716aeac887426e36385150244ff67dcd00a4d43a35c2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 97
+  },
+  {
+   "key": "lex --hex",
+   "kind": "param",
+   "parent": "lex",
+   "name": "--hex",
+   "description": "Uses hexadecimal instead of octal numbers in debug output.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:360bb1b804c8e67197b8716aeac887426e36385150244ff67dcd00a4d43a35c2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 98
+  },
+  {
+   "key": "lex --nounistd",
+   "kind": "param",
+   "parent": "lex",
+   "name": "--nounistd",
+   "description": "Stops the scanner from including unistd.h.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:360bb1b804c8e67197b8716aeac887426e36385150244ff67dcd00a4d43a35c2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 99
+  },
+  {
+   "key": "lex --stdinit",
+   "kind": "param",
+   "parent": "lex",
+   "name": "--stdinit",
+   "description": "Initializes yyin and yyout to stdin and stdout.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:360bb1b804c8e67197b8716aeac887426e36385150244ff67dcd00a4d43a35c2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 100
+  },
+  {
+   "key": "lex --tables-file",
+   "kind": "param",
+   "parent": "lex",
+   "name": "--tables-file",
+   "description": "Writes the scanner tables to the given file.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:360bb1b804c8e67197b8716aeac887426e36385150244ff67dcd00a4d43a35c2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 101
+  },
+  {
+   "key": "lex --yyclass",
+   "kind": "param",
+   "parent": "lex",
+   "name": "--yyclass",
+   "description": "Sets the name of the C++ scanner class.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:360bb1b804c8e67197b8716aeac887426e36385150244ff67dcd00a4d43a35c2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 102
+  },
+  {
+   "key": "lex --yylineno",
+   "kind": "param",
+   "parent": "lex",
+   "name": "--yylineno",
+   "description": "Tracks the line count in yylineno.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:360bb1b804c8e67197b8716aeac887426e36385150244ff67dcd00a4d43a35c2",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 103
+  },
+  {
+   "key": "link",
+   "kind": "command",
+   "parent": null,
+   "name": "link",
+   "description": "The link utility creates a hard link to source_file at target_file by performing a link(2) operation on its two arguments. It takes exactly two arguments and no options, and neither may be a directory. Use it to give a file a second name, or make a hard link without the extra options that ln offers.",
+   "examples": [
+    "link notes.txt notes-copy.txt",
+    "link ./app/config.yml ./app/config.bak",
+    "link data.csv archive.csv"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:cf28a8e2ad47f174547a6d91ce6f0691bf010e434a76e0e785204d0ce4071d2f",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 104
+  },
+  {
+   "key": "ln",
+   "kind": "command",
+   "parent": null,
+   "name": "ln",
+   "description": "The ln utility creates a new directory entry for target_file that points to source_file, either as a hard link or as a symbolic link with -s. The target_file can also be a directory where the link is placed. Use it to make a shortcut to a file or folder, link a file into another location without copying it, or replace an existing link.",
+   "examples": [
+    "ln -s /usr/local/bin/python3 ~/bin/python",
+    "ln -s ~/projects/app current",
+    "ln -sf new-config.yml config.yml"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:cf28a8e2ad47f174547a6d91ce6f0691bf010e434a76e0e785204d0ce4071d2f",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 105
+  },
+  {
+   "key": "locale",
+   "kind": "command",
+   "parent": null,
+   "name": "locale",
+   "description": "locale displays information about the current locale settings, or lists the public locales that are available. Given a category or keyword name, it shows the current value for each keyword. Use it to check the language and character settings your terminal uses, or see which locales are installed.",
+   "examples": [
+    "locale",
+    "locale -a",
+    "locale LC_TIME"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:2baeff38967bd9d5b4f059921c01415509bdede766c803e7161742f33a375c40",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 106
+  },
+  {
+   "key": "localedef",
+   "kind": "command",
+   "parent": null,
+   "name": "localedef",
+   "description": "The localedef utility converts source definitions for locale categories into the format used by functions that read the locale environment variables. Use it to build a custom locale, such as one with its own date or number formats.",
+   "examples": [
+    "localedef -i mylocale.src -f UTF-8 mylocale",
+    "localedef -i en_custom.src en_CUSTOM"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:531e8a96281d4e124c146da200687ec37f7f850bbaa2901c8b16a63e43556b4b",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 107
+  },
+  {
+   "key": "logger",
+   "kind": "command",
+   "parent": null,
+   "name": "logger",
+   "description": "logger makes entries in the system log through the syslog module, using a message given on the command line or from standard input. Use it to write a note to the system log from a script, such as marking when a backup finished.",
+   "examples": [
+    "logger 'Backup finished'",
+    "logger -s -t deploy 'Deploy started'",
+    "logger -p local0.notice -t nightly -f /tmp/report.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:e51b9440fd2abd85cf3d4b179eb7b0803a9a8ecca072f4c167ab2a5791a5fe95",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 108
+  },
+  {
+   "key": "logname",
+   "kind": "command",
+   "parent": null,
+   "name": "logname",
+   "description": "logname writes the user's login name to standard output, ignoring the LOGNAME and USER environment variables. Use it to get the name of the account logged in at the terminal, such as for a script that needs the user name.",
+   "examples": [
+    "logname",
+    "echo \"Hello, $(logname)\"",
+    "logname > current-user.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:fbe68f9c42cfccba2db7ff15573d2f0b1b499af4b5ab29144fe6202c7eb66ad6",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 109
+  },
+  {
+   "key": "lp",
+   "kind": "command",
+   "parent": null,
+   "name": "lp",
+   "description": "Submits files for printing to the default or a named printer, or alters a pending job. Use it to print a document, get two copies, pick a printer, or print on both sides of the paper.",
+   "examples": [
+    "lp -n 2 report.pdf",
+    "lp -d office_printer -o sides=two-sided-long-edge report.pdf",
+    "lp -P 1,3-5 notes.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:f3957d3ec63476047252f1463c7b960c4956c78a25f14312b68b7ce56bc280b5",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 110
+  },
+  {
+   "key": "ls",
+   "kind": "command",
+   "parent": null,
+   "name": "ls",
+   "description": "The ls utility lists the contents of each directory operand, and displays non-directory operands with the requested information. Options control hidden entries, the long format, sorting, and colored output. Use it to see what is in a folder, list hidden files, or sort files by size or time.",
+   "examples": [
+    "ls -la",
+    "ls -lhS ~/Downloads",
+    "ls --color=auto -R src"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:4e8b8e29ffad60f59f71653bc05c3eabf868f504c4f609c41a30b95763f6d388",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 111
+  },
+  {
+   "key": "ls --color",
+   "kind": "param",
+   "parent": "ls",
+   "name": "--color",
+   "description": "Sets when colored output is used: always, auto, or never.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:4e8b8e29ffad60f59f71653bc05c3eabf868f504c4f609c41a30b95763f6d388",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 112
+  },
+  {
+   "key": "m4",
+   "kind": "command",
+   "parent": null,
+   "name": "m4",
+   "description": "Processes macros in the given files, or standard input if none are named, and writes the expanded text to standard output. It supports macro definitions, include paths, frozen state files, and tracing for debugging. Use it to expand a template with macros, fill in values, or generate a config file from macro-based source.",
+   "examples": [
+    "m4 config.m4.in > config.m4",
+    "m4 --define=VERSION=2.1 template.m4",
+    "m4 --include=./macros page.m4"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:ba1e43e108b3c0a4a795096286334b90f6c99eae0a194570e752e63bad6dc2eb",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 113
+  },
+  {
+   "key": "m4 --help",
+   "kind": "param",
+   "parent": "m4",
+   "name": "--help",
+   "description": "Prints a usage summary and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:ba1e43e108b3c0a4a795096286334b90f6c99eae0a194570e752e63bad6dc2eb",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 114
+  },
+  {
+   "key": "m4 --version",
+   "kind": "param",
+   "parent": "m4",
+   "name": "--version",
+   "description": "Prints version information and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:ba1e43e108b3c0a4a795096286334b90f6c99eae0a194570e752e63bad6dc2eb",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 115
+  },
+  {
+   "key": "mailx",
+   "kind": "command",
+   "parent": null,
+   "name": "mailx",
+   "description": "Sends and receives mail, with a mailbox that can be read and replied to, and messages that can be sent with a subject and carbon copies. Mail can also be read from a folder or a system mailbox. Use it to email a file or the output of a script to someone, check whether you have new mail, or read your inbox from the terminal.",
+   "examples": [
+    "mail -s \"Build finished\" dev@example.com < build.log",
+    "mail -H",
+    "mail -e"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:d92182296bf2b59f370886f318f491b833a997d4a53958fbcfc7e70b3481da26",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 116
+  },
+  {
+   "key": "make",
+   "kind": "command",
+   "parent": null,
+   "name": "make",
+   "description": "Determines which parts of a large program need to be rebuilt and runs the commands in a makefile to update the targets. Targets are remade when a prerequisite file has been modified more recently or the target does not exist. Use it to rebuild only what changed after editing source files, run a project's build or clean step, or kick off a compile.",
+   "examples": [
+    "make",
+    "make -j4",
+    "make -f Makefile.dev clean"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:3af1c1a6ca7bd66b204598b3fe92b8dcefbc4316ed3eda264cb4410b10064f0a",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 117
+  },
+  {
+   "key": "make --debug",
+   "kind": "param",
+   "parent": "make",
+   "name": "--debug",
+   "description": "Prints debugging information about how targets and rules are chosen.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:3af1c1a6ca7bd66b204598b3fe92b8dcefbc4316ed3eda264cb4410b10064f0a",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 118
+  },
+  {
+   "key": "make --no-print-directory",
+   "kind": "param",
+   "parent": "make",
+   "name": "--no-print-directory",
+   "description": "Turns off directory printing, even when it was enabled implicitly.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:3af1c1a6ca7bd66b204598b3fe92b8dcefbc4316ed3eda264cb4410b10064f0a",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 119
+  },
+  {
+   "key": "make --warn-undefined-variables",
+   "kind": "param",
+   "parent": "make",
+   "name": "--warn-undefined-variables",
+   "description": "Warns when an undefined variable is referenced.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:3af1c1a6ca7bd66b204598b3fe92b8dcefbc4316ed3eda264cb4410b10064f0a",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 120
+  },
+  {
+   "key": "man",
+   "kind": "command",
+   "parent": null,
+   "name": "man",
+   "description": "man displays online manual documentation pages from the manual sections, and can search the manual by keyword. It shows the first matching page unless told otherwise. Use it to look up how a command or library function works, or find which page covers a topic.",
+   "examples": [
+    "man 2 stat",
+    "man -k 'copy.*archive'",
+    "man -w ls"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:779f06b782e6645a9ee83df72e468b0bbe4358224a8545fd5ae872833bc62aac",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 121
+  },
+  {
+   "key": "mesg",
+   "kind": "command",
+   "parent": null,
+   "name": "mesg",
+   "description": "mesg controls whether other users can write messages to your terminal. Without an argument it shows the current status. Write access is allowed by default. Use it to block chat messages to your terminal while you focus, or to allow them again later.",
+   "examples": [
+    "mesg n",
+    "mesg y",
+    "mesg"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:0af4de655c2783b4805e12963afa83837fda23479a5d9b003fcb3c1f3dfb08df",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 122
+  },
+  {
+   "key": "mkdir",
+   "kind": "command",
+   "parent": null,
+   "name": "mkdir",
+   "description": "The mkdir utility creates the directories named as operands, in the order given, using the default mode modified by the umask. With -p it creates missing parent directories and does not report an error if a directory already exists. Use it to make a new folder, create nested folders in one step, or set permissions on a new folder.",
+   "examples": [
+    "mkdir -p src/utils/helpers",
+    "mkdir -m 700 private",
+    "mkdir -pv build/out"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:d5f071a7f949976c71ab1a642225875cd165ca22c186c8e732bb6b737710b066",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 123
+  },
+  {
+   "key": "mkfifo",
+   "kind": "command",
+   "parent": null,
+   "name": "mkfifo",
+   "description": "mkfifo creates the named pipes, or fifos, in the order given. Without a mode, they get 0666 modified by the umask of the calling process. Use it to make a named pipe so two programs can pass data to each other through a path on disk.",
+   "examples": [
+    "mkfifo my_pipe",
+    "mkfifo -m 600 secret_pipe"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:081e17064f9408433edbf69245e67014cfeb7b812cebfc0d83c67e715d504be5",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 124
+  },
+  {
+   "key": "more",
+   "kind": "command",
+   "parent": null,
+   "name": "more",
+   "description": "Displays the contents of a file in the terminal, with commands for scrolling forward and backward and searching for text. Use it to read a long file page by page, scroll through command output, or jump to a search term in a file.",
+   "examples": [
+    "more notes.txt",
+    "more +/ERROR app.log",
+    "ls -l | more"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:53e8b517bdf8ab2ceecd81e817f19ee50ce3ee6532625ef6cd94d0273c43bf49",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 125
+  },
+  {
+   "key": "more --exit-follow-on-close",
+   "kind": "param",
+   "parent": "more",
+   "name": "--exit-follow-on-close",
+   "description": "Stops waiting for new data in F mode when the input pipe closes.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:53e8b517bdf8ab2ceecd81e817f19ee50ce3ee6532625ef6cd94d0273c43bf49",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 126
+  },
+  {
+   "key": "more --intr",
+   "kind": "param",
+   "parent": "more",
+   "name": "--intr",
+   "description": "Sets the interrupt character that stops waiting for new data in F mode.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:53e8b517bdf8ab2ceecd81e817f19ee50ce3ee6532625ef6cd94d0273c43bf49",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 127
+  },
+  {
+   "key": "mv",
+   "kind": "command",
+   "parent": null,
+   "name": "mv",
+   "description": "The mv utility renames the file named by source to target, or moves each source file into an existing directory. It falls back to cp and rm when the move crosses file systems. Use it to rename a file, move a file into another folder, or put a file aside by moving it elsewhere.",
+   "examples": [
+    "mv draft.txt final.txt",
+    "mv -v notes.md docs/",
+    "mv report.pdf ~/Documents/"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:8a8b5c70281d204bc8b779450b2cd57a604453a1710bc7bf5a517e37702d73d0",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 128
+  },
+  {
+   "key": "newgrp",
+   "kind": "command",
+   "parent": null,
+   "name": "newgrp",
+   "description": "Creates a new shell execution environment with a modified real and effective group ID, or restores the user's original group membership when no group is given. Use it to switch to another group for a session, or switch back to your default group.",
+   "examples": [
+    "newgrp staff",
+    "newgrp -l admin",
+    "newgrp"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:41f6f8a55cfcc9cbd58af62f53797b1f169104c7b6726160f151c9351722a1bc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 129
+  },
+  {
+   "key": "nice",
+   "kind": "command",
+   "parent": null,
+   "name": "nice",
+   "description": "nice runs a utility at an altered scheduling priority by adding an increment to its nice value. Lower nice values get more scheduling priority, and the default increment is 10. Use it to run a long job in the background without slowing down your other work.",
+   "examples": [
+    "nice -n 10 ./backup.sh",
+    "nice -n 5 date"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:a48cb7728acdb3a05d65491cee853ac882b7f49a521ec49c0c2c6c053d850700",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 130
+  },
+  {
+   "key": "nl",
+   "kind": "command",
+   "parent": null,
+   "name": "nl",
+   "description": "Reads lines from a file and adds line numbers using a configurable numbering filter, writing the result to standard output. Numbering can cover all lines or only non-empty ones, and logical page sections can be numbered separately. Use it to add line numbers to source code or a text file, or to number a list for printing or review.",
+   "examples": [
+    "nl -ba main.c",
+    "nl -w3 -s': ' README.md",
+    "nl -v0 -i1 list.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:c619f8c65dd0669b88bd7ad72c7f2bd121a2d6977d52e7573ac2bc070f5c4e32",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 131
+  },
+  {
+   "key": "nm",
+   "kind": "command",
+   "parent": null,
+   "name": "nm",
+   "description": "Displays the name list, or symbol table, of each object file, archive, or executable given. Each symbol is shown with its value and a type letter for undefined, text, data, or other sections. Use it to see which functions or variables a library or binary defines, or to check for undefined references before linking.",
+   "examples": [
+    "nm -g libmath.a",
+    "nm -u main.o",
+    "nm -arch arm64 ./myapp"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:7f96eedcc67baae319d3c67ace135a0319ed2833433662a9822d1a126e29ea16",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 132
+  },
+  {
+   "key": "nohup",
+   "kind": "command",
+   "parent": null,
+   "name": "nohup",
+   "description": "The nohup utility invokes a utility with its arguments and sets SIGHUP to be ignored, so the process survives a hangup. If standard output is a terminal, output goes to nohup.out in the current directory. Use it to keep a long job running after you log out or close the terminal.",
+   "examples": [
+    "nohup ./backup.sh &",
+    "nohup python3 train.py > train.log 2>&1 &",
+    "nohup make all &"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:9c7947f1f3ffe3cf6523306ec5195de31b6e17495995c80da8b53724cdf707d7",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 133
+  },
+  {
+   "key": "od",
+   "kind": "command",
+   "parent": null,
+   "name": "od",
+   "description": "od displays the specified files, or standard input, in a user-specified format such as octal, decimal, hexadecimal, or named characters. Use it to dump the raw bytes of a binary file, such as inspecting the header of a file.",
+   "examples": [
+    "od -c data.bin",
+    "od -t x1 data.bin",
+    "od -A x -t x1z -N 64 data.bin"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:6756512b88ef92f0db7586f360f7cadf16e52ddffab2c379c594bac0d51f2c2a",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 134
+  },
+  {
+   "key": "paste",
+   "kind": "command",
+   "parent": null,
+   "name": "paste",
+   "description": "The paste utility concatenates the corresponding lines of the given input files, replacing the newline characters with tabs or other chosen characters. Use it to put two files side by side in columns, or to join a list of lines into one comma-separated line.",
+   "examples": [
+    "paste names.txt ages.txt",
+    "paste -s -d ',' list.txt",
+    "ls | paste - - -"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:80b9f9b726cb398fc17f25865436ef06ed1be0ad309d9cfb317f54e634de5131",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 135
+  },
+  {
+   "key": "patch",
+   "kind": "command",
+   "parent": null,
+   "name": "patch",
+   "description": "Applies a diff file to an original file, producing a patched version of it. Context, unified, and normal diffs are supported, and a patch can be checked without changing anything. Use it to apply a patch to your code, undo a patch by reversing it, or test whether a patch would apply cleanly first.",
+   "examples": [
+    "patch -p1 < fix-login.diff",
+    "patch -p1 --dry-run < upgrade.patch",
+    "patch -R -p1 -i fix-login.diff"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:8a876046860091b8537764762f9ed6b4827b8e564425ad596f939c9ad98221b4",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 136
+  },
+  {
+   "key": "patch --backup-if-mismatch",
+   "kind": "param",
+   "parent": "patch",
+   "name": "--backup-if-mismatch",
+   "description": "Saves a backup only when a hunk failed to apply or needed fuzz.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:8a876046860091b8537764762f9ed6b4827b8e564425ad596f939c9ad98221b4",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 137
+  },
+  {
+   "key": "patch --help",
+   "kind": "param",
+   "parent": "patch",
+   "name": "--help",
+   "description": "Prints a help message and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:8a876046860091b8537764762f9ed6b4827b8e564425ad596f939c9ad98221b4",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 138
+  },
+  {
+   "key": "patch --no-backup-if-mismatch",
+   "kind": "param",
+   "parent": "patch",
+   "name": "--no-backup-if-mismatch",
+   "description": "Makes backups for every modified file, not only when a mismatch occurs.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:8a876046860091b8537764762f9ed6b4827b8e564425ad596f939c9ad98221b4",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 139
+  },
+  {
+   "key": "patch --posix",
+   "kind": "param",
+   "parent": "patch",
+   "name": "--posix",
+   "description": "Enables strict POSIX behavior, so backups are created only when requested.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:8a876046860091b8537764762f9ed6b4827b8e564425ad596f939c9ad98221b4",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 140
+  },
+  {
+   "key": "patch --quoting-style",
+   "kind": "param",
+   "parent": "patch",
+   "name": "--quoting-style",
+   "description": "Sets how file names are quoted when patch prints them.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:8a876046860091b8537764762f9ed6b4827b8e564425ad596f939c9ad98221b4",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 141
+  },
+  {
+   "key": "pathchk",
+   "kind": "command",
+   "parent": null,
+   "name": "pathchk",
+   "description": "pathchk checks whether each pathname is valid or portable, and writes a diagnostic for any name that is too long or has a bad component. A nonexistent component is not an error if it could be created. Use it to make sure a file name will work on other systems, or to check a path before creating it.",
+   "examples": [
+    "pathchk -p my-file.txt",
+    "find . -exec pathchk -p -- {} +"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:0dcbb81ea494b153d3a9d3f7ea6d4fb27431d6ecf225cc9b9b827c6770c07ce5",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 142
+  },
+  {
+   "key": "pax",
+   "kind": "command",
+   "parent": null,
+   "name": "pax",
+   "description": "The pax utility reads, writes, and lists the members of an archive file, and it can copy directory hierarchies. The mode depends on whether the -r and -w options are given. Use it to pack a folder into an archive, unpack an archive, or copy a folder tree to another location.",
+   "examples": [
+    "pax -w -f project.pax project",
+    "pax -r -f project.pax",
+    "pax -rw src backup"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:95cd9fe0be0093436579087480b1307a0ef4333f14954b583e0ce92332df9bc3",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 143
+  },
+  {
+   "key": "pr",
+   "kind": "command",
+   "parent": null,
+   "name": "pr",
+   "description": "Formats text files into pages with a header and trailer, or into multiple columns, and writes the result to standard output. Use it to paginate text for printing, put a list into two columns, or add line numbers to a file.",
+   "examples": [
+    "pr notes.txt",
+    "pr -2 -h \"Team List\" names.txt",
+    "pr -n data.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:c1a80a59f791228c7eb1f646a4e06ccf33527e64212a9edcd0f05b5484acaeab",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 144
+  },
+  {
+   "key": "printf",
+   "kind": "command",
+   "parent": null,
+   "name": "printf",
+   "description": "Formats its arguments under control of a format string, copying plain characters and converting escape sequences to output. Use it to print formatted text, pad columns to a fixed width, or round a number to a set number of decimal places.",
+   "examples": [
+    "printf \"%s\\n\" hello",
+    "printf \"%.2f\\n\" 31.7456",
+    "printf \"%-10s|%5d\\n\" name 42"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:13f4231caa703aa1ea99c5d3c16afea1b871cc9c2f4900de3d0ea39e422db025",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 145
+  },
+  {
+   "key": "ps",
+   "kind": "command",
+   "parent": null,
+   "name": "ps",
+   "description": "The ps utility displays a header line and information about your processes that have controlling terminals. Options like -a, -u, and -p select other processes, and -o chooses output keywords such as pid and command. Use it to see what is running, find the PID of a program, or check whether a process is still alive.",
+   "examples": [
+    "ps -ax",
+    "ps -u subversion",
+    "ps -ax -o pid,command"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:f9797fd7cd948b71ce951f288166e94bb6c00d023eb62d6486e138a67d799906",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 146
+  },
+  {
+   "key": "pwd",
+   "kind": "command",
+   "parent": null,
+   "name": "pwd",
+   "description": "The pwd utility writes the absolute pathname of the current working directory to the standard output. Use it to find out which folder you are in right now, or to get the full path to hand to a script.",
+   "examples": [
+    "pwd",
+    "pwd -P",
+    "echo \"Working in $(pwd)\""
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:831e1f9d64762d9d4cabd78f2d2bd4911bd6224b167e19e724eee8c9ea060590",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 147
+  },
+  {
+   "key": "renice",
+   "kind": "command",
+   "parent": null,
+   "name": "renice",
+   "description": "renice alters the scheduling priority of one or more running processes, targeted by process ID, process group ID, or user name. Use it to make a running process use less CPU, or to give a slow job more of the processor.",
+   "examples": [
+    "renice +10 -p 4321",
+    "renice -n 5 -u daemon",
+    "renice 19 -p 987 32"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:f2c92caba175556ee208edd68882cc17602ec477d8dbc6f04c39e37f58f2405c",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 148
+  },
+  {
+   "key": "rm",
+   "kind": "command",
+   "parent": null,
+   "name": "rm",
+   "description": "The rm utility removes directory entries, meaning the non-directory type files named on the command line. It removes symbolic links without touching the files they point to, and with -R it removes whole file hierarchies. Use it to delete files, throw away folders and their contents, or clean up leftover build output and temporary files.",
+   "examples": [
+    "rm -i report.txt",
+    "rm -rf build",
+    "rm -v temp.log"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:2891bea567866d3819a4ec9c706005d80a032938e5677db1b5024a91319c24ec",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 149
+  },
+  {
+   "key": "rmdir",
+   "kind": "command",
+   "parent": null,
+   "name": "rmdir",
+   "description": "The rmdir utility removes each directory entry named as an argument, provided that the directory is empty. With -p it removes the parent directories too, stopping at the first one that is not empty. Use it to delete an empty folder, or clean up a nested set of empty folders.",
+   "examples": [
+    "rmdir empty-folder",
+    "rmdir -p cow/horse/monkey",
+    "rmdir -v old-build"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:257fb0e1a82745bc1fdbc6a31a04bf42af964c3b2ddd0f18042250f53fe16818",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 150
+  },
+  {
+   "key": "sed",
+   "kind": "command",
+   "parent": null,
+   "name": "sed",
+   "description": "sed reads the specified files or standard input, applies editing commands to each line, and writes the result to standard output. Use it to find and replace text in a file, delete lines, or edit a file in place.",
+   "examples": [
+    "sed 's/foo/bar/g' config.txt",
+    "sed -i '' 's/old/new/g' file.txt",
+    "sed -n '5,10p' log.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:88e870abea82cd378967a122eb6111a6b6c90eca185e77d29fbe0e960a1d0ba0",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 151
+  },
+  {
+   "key": "sh",
+   "kind": "command",
+   "parent": null,
+   "name": "sh",
+   "description": "sh is a POSIX-compliant command interpreter that re-execs as bash, dash, or zsh, depending on the symbolic link at /private/var/select/sh. It runs commands from the terminal or from a script file. Use it to start a shell session, or run a shell script in a POSIX-compatible way.",
+   "examples": [
+    "sh",
+    "sh ./build.sh",
+    "sh -c 'echo hello'"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:5bed1f6ea535da7ed9398b800ca5d60fa9d7cc0230f66598da53c0e6e579b7f9",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 152
+  },
+  {
+   "key": "sleep",
+   "kind": "command",
+   "parent": null,
+   "name": "sleep",
+   "description": "The sleep command suspends execution for a number of seconds, minutes, hours, or days, given as a number with an optional unit. Multiple intervals are added together. Use it to pause a script for a few seconds, wait ten minutes before the next step, or delay a command.",
+   "examples": [
+    "sleep 30",
+    "sleep 5m",
+    "sleep 0.5h"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:980ae89bae0c2aba8e14faef8764dbeea791fb4ff5e2537825be4ab63168acda",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 153
+  },
+  {
+   "key": "sort",
+   "kind": "command",
+   "parent": null,
+   "name": "sort",
+   "description": "sort sorts or merges the records, meaning lines, of text and binary files, comparing them by one or more sort keys. Use it to alphabetize a list, order numbers, or remove duplicate lines from a file.",
+   "examples": [
+    "sort names.txt",
+    "sort -u emails.txt -o unique.txt",
+    "sort -t, -k2,2n data.csv"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 154
+  },
+  {
+   "key": "sort --batch-size",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--batch-size",
+   "description": "Sets the maximum number of files opened at once.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 155
+  },
+  {
+   "key": "sort --compress-program",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--compress-program",
+   "description": "Uses the given program to compress temporary files.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 156
+  },
+  {
+   "key": "sort --debug",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--debug",
+   "description": "Prints extra information about the sorting process.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 157
+  },
+  {
+   "key": "sort --files0-from",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--files0-from",
+   "description": "Reads the list of input files from a NUL-separated file.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 158
+  },
+  {
+   "key": "sort --heapsort",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--heapsort",
+   "description": "Uses heap sort when the sort specification allows it.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 159
+  },
+  {
+   "key": "sort --help",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--help",
+   "description": "Prints the help text and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 160
+  },
+  {
+   "key": "sort --mergesort",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--mergesort",
+   "description": "Uses merge sort, which always works but is not always fastest.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 161
+  },
+  {
+   "key": "sort --mmap",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--mmap",
+   "description": "Uses memory mapping for file access, which can speed up some sorts.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 162
+  },
+  {
+   "key": "sort --parallel",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--parallel",
+   "description": "Sets the maximum number of execution threads.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 163
+  },
+  {
+   "key": "sort --qsort",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--qsort",
+   "description": "Uses quick sort when the sort specification allows it.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 164
+  },
+  {
+   "key": "sort --radixsort",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--radixsort",
+   "description": "Uses radix sort when the sort specification allows it.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 165
+  },
+  {
+   "key": "sort --random-source",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--random-source",
+   "description": "Uses the contents of the given file as the seed for random sort.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 166
+  },
+  {
+   "key": "sort --version",
+   "kind": "param",
+   "parent": "sort",
+   "name": "--version",
+   "description": "Prints the version and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:83a0a0ff94dd42f68adc711c7c3609916a3a9650552b715ced75bcc4715dcdbc",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 167
+  },
+  {
+   "key": "split",
+   "kind": "command",
+   "parent": null,
+   "name": "split",
+   "description": "split breaks a file into pieces by line count, byte size, chunk count, or a pattern match, leaving the original file unchanged. Output files get a prefix and a sorted suffix. Use it to cut a large file into smaller parts, such as for uploads that have a size limit.",
+   "examples": [
+    "split -l 1000 access.log access_part_",
+    "split -b 10m backup.tar.gz backup_part_",
+    "split -n 6 notes.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:f04b6d4e19ce4b267c1cff4a95f5b3926b95193e4dd47f6e3fe5b26973461a55",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 168
+  },
+  {
+   "key": "strings",
+   "kind": "command",
+   "parent": null,
+   "name": "strings",
+   "description": "strings finds printable ASCII strings in a binary file or standard input. By default it looks for runs of four or more printing characters. Use it to pull readable text out of a compiled program, such as embedded messages, paths, or URLs.",
+   "examples": [
+    "strings a.out",
+    "strings -n 8 binary.bin"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:8a20e6d9351b1aef5b365b26101e1382e3089c6715733257c26af94e81c06858",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 169
+  },
+  {
+   "key": "strip",
+   "kind": "command",
+   "parent": null,
+   "name": "strip",
+   "description": "strip removes or modifies the symbol table attached to compiled output such as executables, objects, and dynamic shared libraries. Use it to shrink a built binary or library after debugging, or to drop internal symbols before shipping.",
+   "examples": [
+    "strip -x libfoo.dylib",
+    "strip -u -r ./build/myapp",
+    "strip -x -c libfoo -o libfoo.stripped"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:8eafa49c36a308165accf0ecd24ad27e7c620e744a1ed018789c6ed295c35e74",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 170
+  },
+  {
+   "key": "stty",
+   "kind": "command",
+   "parent": null,
+   "name": "stty",
+   "description": "The stty utility sets or reports on terminal characteristics for its standard input device. With no arguments it reports the current settings, and with arguments it changes modes and control characters. Use it to see your terminal settings, bring a broken terminal back to sane, or stop typed characters from showing on screen.",
+   "examples": [
+    "stty -a",
+    "stty sane",
+    "stty -echo"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:c958007bbc9fddeb58a2dbbb369aafc233cfb4f2b762e5de0967cb1bec0d0684",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 171
+  },
+  {
+   "key": "tabs",
+   "kind": "command",
+   "parent": null,
+   "name": "tabs",
+   "description": "tabs displays the escape sequence that clears the hardware terminal tab settings, then sets tab stops at given positions or in a predefined format. It can also adjust the left margin. Use it to reset tab stops in your terminal or set them to a fixed width, such as every four columns.",
+   "examples": [
+    "tabs -4",
+    "tabs -a",
+    "tabs 1,8,16"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:336b076a9cff84c1cd31587f98ece02ab4c4c6b8f22afd92db481fea6b9af1f7",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 172
+  },
+  {
+   "key": "tail",
+   "kind": "command",
+   "parent": null,
+   "name": "tail",
+   "description": "Displays the last part of a file or standard input, counted in lines, bytes, or 512-byte blocks, and can keep following data as it is appended. Use it to see the end of a log, watch a growing log file live, or grab the last few lines of output.",
+   "examples": [
+    "tail -n 50 app.log",
+    "tail -f server.log",
+    "tail -n 20 notes.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:23de9ff79d2d6f0478750d6c98d832fbaba818d68af9c8d64fc9f7ba2d0eb882",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 173
+  },
+  {
+   "key": "talk",
+   "kind": "command",
+   "parent": null,
+   "name": "talk",
+   "description": "The talk utility is a visual communication program that copies lines from your terminal to the terminal of another user, with each side typing in its own window. Use it to chat in real time with someone on the same machine or on another host.",
+   "examples": [
+    "talk alice",
+    "talk bob@devbox",
+    "talk alice ttys001"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:85af0adc64a30caf33c9e3815b0e53dd7012c935662c83b6fb479793b4a01294",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 174
+  },
+  {
+   "key": "tee",
+   "kind": "command",
+   "parent": null,
+   "name": "tee",
+   "description": "tee copies standard input to standard output and also writes it to one or more files. The output is unbuffered. Use it to save a command's output to a file while still seeing it on screen, or to keep appending to a log.",
+   "examples": [
+    "echo \"Hello\" | tee greetings.txt",
+    "ls -l | tee listing.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:0372b97a6823ebcaeaee5570e809eb11a3e0fbece77163f28a40bbfdfaec38be",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 175
+  },
+  {
+   "key": "test",
+   "kind": "command",
+   "parent": null,
+   "name": "test",
+   "description": "The test utility evaluates an expression and returns a zero exit status if it is true, or 1 if it is false. It checks file types, permissions, and sizes, and compares strings and integers. Use it to check whether a file exists before writing to it, or to compare two numbers in a script.",
+   "examples": [
+    "test -f notes.txt && echo found",
+    "[ -d ~/Documents ] && echo exists",
+    "[ 5 -gt 3 ] && echo bigger"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:2eaa47430c72e81b8742aa3c58bebe1409f3b160f904cc7edbda319c713d0c88",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 176
+  },
+  {
+   "key": "time",
+   "kind": "command",
+   "parent": null,
+   "name": "time",
+   "description": "Executes the specified utility and writes its real, user, and system times to standard error. Use it to measure how long a command takes, time a build, or compare two runs.",
+   "examples": [
+    "time sleep 2",
+    "time -p npm test",
+    "time -o timing.txt make"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:8c94097b0fd58b1e9fe440eb5cf4da53e2b110265c887cae33782f3124449c28",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 177
+  },
+  {
+   "key": "touch",
+   "kind": "command",
+   "parent": null,
+   "name": "touch",
+   "description": "touch sets the modification and access times of files, and creates any file that does not exist. Use it to make an empty file, or to update a file's timestamp so a build tool treats it as new.",
+   "examples": [
+    "touch notes.txt",
+    "touch -r old.txt new.txt",
+    "touch -t 202601011200 report.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:5b455166fbf9525d8651758b760d159f09e5191c3c87d6e661b8996fd4aa9830",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 178
+  },
+  {
+   "key": "tput",
+   "kind": "command",
+   "parent": null,
+   "name": "tput",
+   "description": "The tput utility uses the terminfo database to output terminal-dependent capabilities, or to initialize, reset, or identify the terminal. Use it to clear the screen, move the cursor, or fix a terminal that has gone garbled.",
+   "examples": [
+    "tput clear",
+    "tput cols",
+    "tput cup 10 0"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:f8b9ca4a6b42083728acb503853203e6c0736fa0845ab63320a8c66489fb01e6",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 179
+  },
+  {
+   "key": "tr",
+   "kind": "command",
+   "parent": null,
+   "name": "tr",
+   "description": "The tr utility copies standard input to standard output, substituting or deleting selected characters along the way. Use it to change text to upper or lower case, strip out unwanted characters, or squeeze repeated spaces into one.",
+   "examples": [
+    "tr '[:lower:]' '[:upper:]' < notes.txt",
+    "tr -d '\\r' < windows.txt > unix.txt",
+    "tr -s ' ' < data.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:87dcf99490140e7b56b1feb34679b853cf46575ba8fb7536a6640c37e5d7dd40",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 180
+  },
+  {
+   "key": "true",
+   "kind": "command",
+   "parent": null,
+   "name": "true",
+   "description": "The true utility always returns with an exit code of zero and writes nothing. Use it to make a script or shell condition succeed no matter what, or as a placeholder that always passes.",
+   "examples": [
+    "true && echo ok",
+    "false || true",
+    "while true; do sleep 1; done"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:5b6dbbbdb1d9ce8fc33f88981370fb2d3c3e2baaf9884571e8e4389d2a3c3e21",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 181
+  },
+  {
+   "key": "tsort",
+   "kind": "command",
+   "parent": null,
+   "name": "tsort",
+   "description": "Performs a topological sort of a directed graph, reading pairs of node names as arcs and printing the nodes in order. When a cycle is found, it is reported on standard error and one arc is ignored so the sort can continue. Use it to put items in dependency order, such as build or install steps, or to find a loop in a list of relationships.",
+   "examples": [
+    "tsort deps.txt",
+    "tsort -q build-graph.txt",
+    "cat edges.txt | tsort"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:2ac4c8ecc55a878fd9987994ed93a4b013fc5bf4556e4b34394dab8513b3a67e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 182
+  },
+  {
+   "key": "tty",
+   "kind": "command",
+   "parent": null,
+   "name": "tty",
+   "description": "tty writes the name of the terminal attached to standard input, or reports that the input is not a terminal. With the silent option only the exit status is set. Use it to find out which terminal you are in, or to check from a script whether input comes from a terminal.",
+   "examples": [
+    "tty",
+    "tty -s"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:87efa464f4539def6194b58bbea35bd697a556c181ed7bb23940963376839d0a",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 183
+  },
+  {
+   "key": "uname",
+   "kind": "command",
+   "parent": null,
+   "name": "uname",
+   "description": "uname writes the name of the operating system implementation and other system characteristics to standard output. Use it to check the OS, kernel release, or hardware type from a script or the terminal.",
+   "examples": [
+    "uname -a",
+    "uname -m",
+    "uname -r"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:09754959656e54d5f4c606de41f599f7b16ffba7727c6b74408e5492534f8b16",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 184
+  },
+  {
+   "key": "uncompress",
+   "kind": "command",
+   "parent": null,
+   "name": "uncompress",
+   "description": "The uncompress utility restores files compressed by compress to their original form by removing the .Z extension. Use it to unpack an old .Z archive, or to decompress data piped in from another command.",
+   "examples": [
+    "uncompress archive.tar.Z",
+    "uncompress -c old_data.Z > old_data.txt",
+    "uncompress -f legacy.Z"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:eb841b6d960b13880ab6d439383dc8632f7fe3f033115ea6358c038c0fec419e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 185
+  },
+  {
+   "key": "unexpand",
+   "kind": "command",
+   "parent": null,
+   "name": "unexpand",
+   "description": "The unexpand utility reads the named files or standard input and puts tabs back into the data, converting runs of blanks into tabs. Use it to turn spaces back into tabs in a text file, or to tidy up the indentation of a script.",
+   "examples": [
+    "unexpand notes.txt",
+    "unexpand -t 8 script.sh > script_tabbed.sh",
+    "unexpand -a -t 4 data.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:89d260770f089f33a00305eaf21b805258a05238d68765131efbf94e94fc60da",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 186
+  },
+  {
+   "key": "uniq",
+   "kind": "command",
+   "parent": null,
+   "name": "uniq",
+   "description": "Reads input, compares adjacent lines, and writes a copy of each unique line to output, optionally with counts, only repeated lines, or only lines that appear once. Use it to drop duplicate lines from a sorted list, count how often each line appears, or find lines that show up only once.",
+   "examples": [
+    "sort names.txt | uniq",
+    "sort words.txt | uniq -c",
+    "sort ids.txt | uniq -d"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:4825b1dbea0768881547ad16fe9a5e4baa20016babfa96e541164e996b0da147",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 187
+  },
+  {
+   "key": "unlink",
+   "kind": "command",
+   "parent": null,
+   "name": "unlink",
+   "description": "The unlink utility removes a single non-directory directory entry by performing an unlink(2) operation on its one argument. It accepts no options, only an optional -- delimiter before the file name. Use it to delete one file, throw away a file, or remove a file whose name starts with a dash.",
+   "examples": [
+    "unlink old-notes.txt",
+    "unlink -- -f",
+    "unlink ./draft.tmp"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:2891bea567866d3819a4ec9c706005d80a032938e5677db1b5024a91319c24ec",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 188
+  },
+  {
+   "key": "uucp",
+   "kind": "command",
+   "parent": null,
+   "name": "uucp",
+   "description": "The uucp command copies files between systems, using a system!path address for a file on a remote system and queuing the copy for the uucico daemon. Use it to send a file to another machine, or to get a file copied to a remote host without waiting on the connection.",
+   "examples": [
+    "uucp report.txt remotehost!~/incoming/",
+    "uucp -m data.zip remotehost!/tmp/",
+    "uucp -j notes.txt sys1!/tmp/notes.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:42716303c49090cb8dff0b767bd7a5e3a1eb4a78e7845652c516ed47872abdbd",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 189
+  },
+  {
+   "key": "uucp --debug",
+   "kind": "param",
+   "parent": "uucp",
+   "name": "--debug",
+   "description": "Turns on the named debugging types.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:42716303c49090cb8dff0b767bd7a5e3a1eb4a78e7845652c516ed47872abdbd",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 190
+  },
+  {
+   "key": "uucp --help",
+   "kind": "param",
+   "parent": "uucp",
+   "name": "--help",
+   "description": "Prints a help message and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:42716303c49090cb8dff0b767bd7a5e3a1eb4a78e7845652c516ed47872abdbd",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 191
+  },
+  {
+   "key": "uudecode",
+   "kind": "command",
+   "parent": null,
+   "name": "uudecode",
+   "description": "uudecode transforms uuencoded files, or standard input, back into their original binary form. Use it to restore a file that was sent as uuencoded text, such as an attachment pasted into a message.",
+   "examples": [
+    "uudecode message.uu",
+    "uudecode -o photo.jpg encoded.txt",
+    "uudecode -p encoded.txt > restored.bin"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:8e577656e9348f38d8c70aff6940a9225e6ae8be22bd6ce07837d8e9e63ee222",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 192
+  },
+  {
+   "key": "uuencode",
+   "kind": "command",
+   "parent": null,
+   "name": "uuencode",
+   "description": "Encodes a binary file into printable ASCII text, writing the encoded version to standard output or to an output file. The encoding includes the file mode and name so it can be decoded later. Use it to turn a binary file into plain text so you can paste or email it, or to store it in a text-only format.",
+   "examples": [
+    "uuencode logo.png logo.png > logo.uu",
+    "uuencode -m report.pdf report.pdf > report.b64",
+    "uuencode data.bin data.bin | head -n 5"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:8e577656e9348f38d8c70aff6940a9225e6ae8be22bd6ce07837d8e9e63ee222",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 193
+  },
+  {
+   "key": "uustat",
+   "kind": "command",
+   "parent": null,
+   "name": "uustat",
+   "description": "The uustat command displays status information about the UUCP system and can kill or rejuvenate queued requests made by uucp or uux. By default it lists the jobs queued for the invoking user. Use it to check on pending file transfers to another machine, or to cancel a transfer that has stalled.",
+   "examples": [
+    "uustat --all",
+    "uustat --status",
+    "uustat --list"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:a7568236ddb7d862292d69a46a0a75c5e5952c670c15d7a20a328a5b8c04b6af",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 194
+  },
+  {
+   "key": "uustat --comment",
+   "kind": "param",
+   "parent": "uustat",
+   "name": "--comment",
+   "description": "Adds a comment to the mail sent by the mail or notify options.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:a7568236ddb7d862292d69a46a0a75c5e5952c670c15d7a20a328a5b8c04b6af",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 195
+  },
+  {
+   "key": "uustat --debug",
+   "kind": "param",
+   "parent": "uustat",
+   "name": "--debug",
+   "description": "Turns on the named debugging types.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:a7568236ddb7d862292d69a46a0a75c5e5952c670c15d7a20a328a5b8c04b6af",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 196
+  },
+  {
+   "key": "uustat --help",
+   "kind": "param",
+   "parent": "uustat",
+   "name": "--help",
+   "description": "Prints a help message and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:a7568236ddb7d862292d69a46a0a75c5e5952c670c15d7a20a328a5b8c04b6af",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 197
+  },
+  {
+   "key": "uustat --not-system",
+   "kind": "param",
+   "parent": "uustat",
+   "name": "--not-system",
+   "description": "Excludes jobs queued for the named system from the listing.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:a7568236ddb7d862292d69a46a0a75c5e5952c670c15d7a20a328a5b8c04b6af",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 198
+  },
+  {
+   "key": "uustat --not-user",
+   "kind": "param",
+   "parent": "uustat",
+   "name": "--not-user",
+   "description": "Excludes jobs queued for the named user from the listing.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:a7568236ddb7d862292d69a46a0a75c5e5952c670c15d7a20a328a5b8c04b6af",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 199
+  },
+  {
+   "key": "uustat --older-than",
+   "kind": "param",
+   "parent": "uustat",
+   "name": "--older-than",
+   "description": "Limits the listing to jobs older than the given number of hours.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:a7568236ddb7d862292d69a46a0a75c5e5952c670c15d7a20a328a5b8c04b6af",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 200
+  },
+  {
+   "key": "uustat --prompt",
+   "kind": "param",
+   "parent": "uustat",
+   "name": "--prompt",
+   "description": "Asks for each listed job whether to kill it.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:a7568236ddb7d862292d69a46a0a75c5e5952c670c15d7a20a328a5b8c04b6af",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 201
+  },
+  {
+   "key": "uustat --system",
+   "kind": "param",
+   "parent": "uustat",
+   "name": "--system",
+   "description": "Limits the listing to jobs queued for the named system.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:a7568236ddb7d862292d69a46a0a75c5e5952c670c15d7a20a328a5b8c04b6af",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 202
+  },
+  {
+   "key": "uustat --younger-than",
+   "kind": "param",
+   "parent": "uustat",
+   "name": "--younger-than",
+   "description": "Limits the listing to jobs younger than the given number of hours.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:a7568236ddb7d862292d69a46a0a75c5e5952c670c15d7a20a328a5b8c04b6af",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 203
+  },
+  {
+   "key": "uux",
+   "kind": "command",
+   "parent": null,
+   "name": "uux",
+   "description": "uux runs a command on a remote system over UUCP, or runs a local command using files gathered from remote systems. The request is queued until the uucico daemon calls the system. Use it to run something on another machine or feed a remote file into a local job.",
+   "examples": [
+    "uux -z - sys1!rmail user1",
+    "uux 'diff -c sys1!~user1/file1 sys2!~user2/file2 >!file.diff'"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:cc36eadc9870a51514c53abf1760508c5a5c895d1d2b65674074ab4b4f606160",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 204
+  },
+  {
+   "key": "uux --debug",
+   "kind": "param",
+   "parent": "uux",
+   "name": "--debug",
+   "description": "Turns on the named debugging types for this run.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:cc36eadc9870a51514c53abf1760508c5a5c895d1d2b65674074ab4b4f606160",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 205
+  },
+  {
+   "key": "uux --help",
+   "kind": "param",
+   "parent": "uux",
+   "name": "--help",
+   "description": "Prints a help message and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:cc36eadc9870a51514c53abf1760508c5a5c895d1d2b65674074ab4b4f606160",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 206
+  },
+  {
+   "key": "uux --link",
+   "kind": "param",
+   "parent": "uux",
+   "name": "--link",
+   "description": "Links local files into the spool directory, copying them only when linking fails.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:cc36eadc9870a51514c53abf1760508c5a5c895d1d2b65674074ab4b4f606160",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 207
+  },
+  {
+   "key": "vi",
+   "kind": "command",
+   "parent": null,
+   "name": "vi",
+   "description": "vim is Vi IMproved, a text editor that is compatible with Vi and adds multi-level undo, syntax highlighting, multiple windows and buffers, and on-line help. It opens the listed files, or starts with an empty buffer. Use it to edit code or text files in the terminal, or open a file read-only so it cannot be changed by accident.",
+   "examples": [
+    "vim notes.txt",
+    "vim -R config.yml",
+    "vim -d old.c new.c"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 208
+  },
+  {
+   "key": "vi --clean",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--clean",
+   "description": "Skips personal configuration such as vimrc and plugins, which helps isolate a problem.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 209
+  },
+  {
+   "key": "vi --cmd",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--cmd",
+   "description": "Runs the given command before any vimrc file is processed.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 210
+  },
+  {
+   "key": "vi --echo-wid",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--echo-wid",
+   "description": "Prints the window ID on standard output, GTK GUI only.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 211
+  },
+  {
+   "key": "vi --gui-dialog-file",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--gui-dialog-file",
+   "description": "Writes GUI dialog text to a file instead of showing the dialog.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 212
+  },
+  {
+   "key": "vi --help",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--help",
+   "description": "Prints help about command line arguments and exits.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 213
+  },
+  {
+   "key": "vi --literal",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--literal",
+   "description": "Treats file name arguments literally without expanding wildcards.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 214
+  },
+  {
+   "key": "vi --log",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--log",
+   "description": "Writes channel log entries to the given file.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 215
+  },
+  {
+   "key": "vi --nofork",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--nofork",
+   "description": "Keeps the GUI in the foreground instead of detaching from the shell.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 216
+  },
+  {
+   "key": "vi --noplugin",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--noplugin",
+   "description": "Skips loading plugins.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 217
+  },
+  {
+   "key": "vi --not-a-term",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--not-a-term",
+   "description": "Suppresses the warning and delay when input or output is not a terminal.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 218
+  },
+  {
+   "key": "vi --remote",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--remote",
+   "description": "Connects to a running Vim server and opens the given files there.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 219
+  },
+  {
+   "key": "vi --remote-expr",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--remote-expr",
+   "description": "Evaluates an expression in a running Vim server and prints the result.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 220
+  },
+  {
+   "key": "vi --remote-send",
+   "kind": "param",
+   "parent": "vi",
+   "name": "--remote-send",
+   "description": "Sends the given keys to a running Vim server.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:f376e5f4ec8baec228c0a410d014b03ff1ad1a423c94ec68e25094b23bb21e9e",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 221
+  },
+  {
+   "key": "wc",
+   "kind": "command",
+   "parent": null,
+   "name": "wc",
+   "description": "Counts the lines, words, and bytes in each input file or in standard input, and adds a total line when several files are given. Use it to count lines in a file, count the words in an essay, or check the size of a text.",
+   "examples": [
+    "wc -l notes.txt",
+    "wc -w essay.md",
+    "wc -lw report1.txt report2.txt"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:fe0f66128ecb899bef82105e7e7706c4d0202786a74aa9f1a81691da4dcf1844",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 222
+  },
+  {
+   "key": "wc --libxo",
+   "kind": "param",
+   "parent": "wc",
+   "name": "--libxo",
+   "description": "Formats the output through libxo in human or machine readable styles.",
+   "examples": [],
+   "doc_source": "man",
+   "source_hash": "sha256:fe0f66128ecb899bef82105e7e7706c4d0202786a74aa9f1a81691da4dcf1844",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 223
+  },
+  {
+   "key": "what",
+   "kind": "command",
+   "parent": null,
+   "name": "what",
+   "description": "Searches each file for SCCS @(#) version markers and prints the text that follows each marker. Output is formatted by default, or can be printed as raw match text. Use it to find out which version of a library or binary a file was built from, or to check the build version of a tool you have installed.",
+   "examples": [
+    "what /usr/bin/ssh",
+    "what libz.a",
+    "what -s build/app"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:c74dd92e44b6c7fd0b2e89b373f8839cf17c5ac053e73701a71805e09135ac2c",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 224
+  },
+  {
+   "key": "who",
+   "kind": "command",
+   "parent": null,
+   "name": "who",
+   "description": "Displays information about the users currently logged in, including login name, terminal line, login time, and remote hostname if not local. Output can be shown with headings, idle times, or a quick count. Use it to see who is on this machine right now, or to check whether someone is connected from another host.",
+   "examples": [
+    "who",
+    "who -H",
+    "who -u"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:6c3a12a991ad946ce05278fca4c9fbe6199be846f50887c47c352e6f09f6f219",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 225
+  },
+  {
+   "key": "write",
+   "kind": "command",
+   "parent": null,
+   "name": "write",
+   "description": "write copies lines typed at your terminal to another user's terminal, so you can talk back and forth. The recipient gets a header with your name, host, and tty. Use it to send someone a quick message or start a chat with a person logged in on this machine.",
+   "examples": [
+    "write alice",
+    "write bob ttys003"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:d479108d607886eff6d280e2b7bbe2e63d1405f340ed037149e18f4fef5b35ec",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 226
+  },
+  {
+   "key": "xargs",
+   "kind": "command",
+   "parent": null,
+   "name": "xargs",
+   "description": "Reads space, tab, newline, and end-of-file delimited strings from standard input and runs a utility with them as arguments, building argument lists as needed. Input can be processed one line at a time or several processes can run in parallel. Use it to run a command on every file an earlier command found, or to feed a long list of names into another tool.",
+   "examples": [
+    "ls *.md | xargs wc -w",
+    "find . -name '*.txt' | xargs grep -l TODO",
+    "printf '%s\\n' alpha beta gamma | xargs -I % echo file-%"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:e575d23c17f3bd10eb9899a49a494bb1a04109150416f61b9b09d89eb72f22b1",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 227
+  },
+  {
+   "key": "yacc",
+   "kind": "command",
+   "parent": null,
+   "name": "yacc",
+   "description": "The yacc command is a parser generator, and on Darwin it is a wrapper for bison equivalent to bison -y. Use it to generate a parser from a grammar file, such as a build step for a small language or calculator.",
+   "examples": [
+    "yacc grammar.y",
+    "yacc -d calc.y",
+    "yacc -v parser.y"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:94b8af49bfcc0537a1e4db90bd4565c12da85b057f814e12462fabc2fcf2eb82",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 228
+  },
+  {
+   "key": "zcat",
+   "kind": "command",
+   "parent": null,
+   "name": "zcat",
+   "description": "The zcat utility decompresses the named gzip file and writes the result to the standard output, leaving the compressed file intact. Use it to read a zipped log or text file without unpacking it on disk, or to pipe its contents into another command.",
+   "examples": [
+    "zcat notes.txt.gz",
+    "zcat access.log.gz | grep 404",
+    "zcat backup.tar.gz | head -n 20"
+   ],
+   "doc_source": "man",
+   "source_hash": "sha256:27285fccd95db745f0bff582ce11085e63dd57ad4b65a70cf4e770a818c1e991",
+   "generated_at": "2026-11-04T18:18:12Z",
+   "pinned": true,
+   "vector_row": 229
+  }
+ ]
+}

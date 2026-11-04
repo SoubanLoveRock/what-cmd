@@ -927,6 +927,34 @@ v2 的子命令列表混入了大量文档中的非子命令词（选项值、�
 - `already seen`：这是去重分支，同一子命令被多个父命令或多轮重复列出时才会命中，属于预期行为。删除 `discover_children` 中对应的日志行，去重逻辑不变。
 - 文档：DESIGN 第 11 节（安全）去掉 `--allowedTools`、MCP 参数相关表述，改为 `--tools ""` 承担禁用；第 12 节测试项与新的参数拼装一致；第 13 节待确认项更新为已验证的实际状态，并删除已完成的 rmcp 与 embedding 客户端等过期项。
 
+## 2026-11-05 查询接入真实 embedding 与 zsh 输入条验证
+
+**背景**
+
+`query` 原先用 `UnavailableEmbedder`，查询时只会返回退出码 3。zsh 集成脚本 `shell/whatcmd.zsh` 已写好，但从未在真实交互环境中跑过。
+
+**决定**
+
+- `cli.rs` 的 `query` 改用 `OpenAiEmbedder::from_config`。缺少 `WHATCMD_EMBEDDING_API_KEY` 或端点不可达时仍映射到退出码 3。`UnavailableEmbedder` 只留给测试。
+- zsh 输入条：`whatcmd-widget` 用 `read-from-minibuffer` 读取查询文本，候选用 fzf 列表选择，选中后按 `delete_tail` 改写 `LBUFFER`，不回车。
+- 字段拆分改为 `${(@ps:$tab:)1}`。`${(s:$tab:)...}` 在变量展开时拆不出列，实测只得到 1 列。
+- 排除的方案：`read`、`vared` 在 zle 小部件内都失败（`read` 的 stdin 为 `/dev/null`，`vared` 报 `ZLE cannot be used recursively`）。
+
+**验证**
+
+- `query -- pull romote`（真实 embedding，SiliconFlow）退出码 0，返回 5 条候选，stderr 为空。排序偏差（`git pull` 未进前 10）属于提示词问题，留待后续维护。
+- `_whatcmd_apply` 直接调用：`git p` → `git pull`，`git ` → `git pull`（`delete_tail` 按前缀取值）。
+- tmux 隔离环境（独立 ZDOTDIR，只 source 本脚本）：Ctrl-G 出现 `whatcmd>` 提示，输入查询后 fzf 列表显示候选，选中 `git push --prune` 后命令行变为该文本，屏幕上没有 git 输出，即未执行。
+- expect 脚本多次失败（`log_file -noecho` 在 macOS expect 中不支持；fzf 的光标查询与绘制序列匹配不稳定），已放弃，改用 tmux。
+- 一次失败的 tmux 运行：Ctrl-G 未生效，回车把 `git p` 提交给了 zsh，git 仅报错。原因是按键发送时序，`bindkey '^G'` 检查确认绑定正常。之后的运行先等待提示符再发送按键。
+
+**遗留问题**
+
+- 排序：`git pull` 本身不在前 10，前列是 `git push --prune`、`git switch --guess` 等。已确认是提示词与描述问题，后续维护。
+- 测试脚本的等待条件有误（`TIMEOUT waiting for: TESTPROMPT%` 出现但实际提示符已在屏幕上），未修。
+- 没有把 widget 的 zsh 流程纳入自动化测试，只有手动 tmux 验证。
+- 以下改动均未提交。
+
 **验证**
 
 - `cargo fmt --check` 通过。
@@ -937,3 +965,57 @@ v2 的子命令列表混入了大量文档中的非子命令词（选项值、�
 - `whatcmd mcp` 子命令与 `rmcp` 依赖仍未移除，等待决定是否在本次提交前清理。
 - `git history` 等新版本子命令本机 git 不存在，未覆盖。
 - 以上改动均未提交，等待确认。
+
+## 2026-11-05 预置集、`whatcmd record`、移除 MCP
+
+**背景**
+
+索引为空时查询没有可用节点；使用加分只有读取端，`usage.jsonl` 从未被写入，加分恒为 0；MCP 方案已废弃但代码与依赖仍在。
+
+**决定**
+
+- 预置集：`seed/index.json` 与 `seed/vectors.bin`（POSIX 常用命令，节点均 `pinned`）编译时嵌入，`src/seed.rs` 校验行数、`vectors_sha256` 与 `pinned`。`query` 与 `reindex` 开始时调用 `install_if_missing`：索引不存在才写入；embedding 模型或维度与预置向量不一致时跳过并记 warn，第一版不重新 embedding。
+- `usage::append`：校验 key（非空、长度上限、无控制字符）与时间格式后追加一行，目录不存在时创建。`UsageError` 新增 `Json`、`BadKey`、`BadTime`。
+- `whatcmd record <key>`：写入当前 UTC 时间，失败退出码 2。
+- `shell/whatcmd.zsh`：插入 LBUFFER 后以后台、静默方式调用 `whatcmd record`，key 取候选行第 1 列，不阻塞输入，不向终端输出。
+- 移除 `src/mcp/`、`whatcmd mcp` 子命令、`known_nodes` 及其测试，删除 `rmcp`、`tokio` 依赖。`Capability::Mcp`、`StrictMcp`、`ToolAllowlist` 仍保留在能力解析中，不在 `REQUIRED` 内。
+- DESIGN 第 3、4、5、10、13 节与 INTERFACES 第 2、17、18 节同步。
+
+**验证**
+
+- 预置集端到端：新配置下 `query` 先写出 `index/`，真实 SiliconFlow embedding 下 5 条查询退出码 0；grep、sed、df 第 1，ls、kill 第 2。
+- 使用加分：`record kill` 3 次后，"stop a stuck program" 中 kill 由 0.5341 升至 0.6037，排第 1（加分 0.05 × ln 4 ≈ 0.069）。
+- lib 229 项、集成测试 1 项通过（移除 MCP 相关测试后），fmt、clippy 通过，`zsh -n` 通过。
+
+**遗留问题**
+
+- widget 中的 `record` 调用只做了语法检查，未在 tmux 中重跑完整交互流程。
+- `reindex --auto`、PATH 指纹、`-v` 与 `WHATCMD_LOG`、`doctor` 未实现。
+- 提示词 v6 后未重跑 `reindex`。
+- SiliconFlow key 需轮换。
+
+## 2026-11-05 预置集、whatcmd record、移除 MCP
+
+**背景**
+
+索引为空时查询直接报错，需要随发布附带常用命令；使用加分只有读取，没有写入，`usage.jsonl` 永远为空；MCP 方案已废弃，代码与依赖仍在。
+
+**决定**
+
+- 预置集：`seed/index.json` 与 `seed/vectors.bin` 编译时嵌入（POSIX 常用命令，节点均 `pinned`）。`query` 与 `reindex` 开始前调用 `seed::install_if_missing`：索引不存在才写入，不调用 LLM；embedding 模型或维度与预置向量不一致时跳过并记 warn，第一版不重新 embedding。
+- `whatcmd record <key>`：`usage::append` 追加 `{"key","at"}` 一行，自动创建目录；key 为空、超长或含控制字符，或时间格式不符时拒绝，退出码 2。
+- zsh widget 插入候选后在后台静默调用 `whatcmd record <key>`，不阻塞、不输出。
+- 删除 `src/mcp/`、`whatcmd mcp` 子命令、`known_nodes` 及其测试，移除 `rmcp`、`tokio` 依赖。DESIGN 第 10 节、INTERFACES 第 18 节保留为历史记录并标注已移除。
+
+**验证**
+
+- 真实 embedding（SiliconFlow）：全新配置目录下 `query` 自动写入预置集，5 条查询退出码 0，正确命令均在前 2，其中 3 条第 1。
+- `record kill` 三次后，`stop a stuck program` 中 kill 从 0.5341 升至 0.6037，排到第 1（加分 0.05×ln4 ≈ 0.069）。
+- `cargo fmt --check`、`cargo clippy --all-targets -- -D warnings` 通过；lib 229 项、集成测试 1 项通过（删除 MCP 相关测试后）；`zsh -n shell/whatcmd.zsh` 通过。
+
+**遗留问题**
+
+- widget 调用 `record` 只做了语法检查，未在 tmux 中重新手动验证。
+- 提示词 v6 之后未重跑 `reindex`。
+- `reindex --auto`、PATH 指纹、`-v` 与 `WHATCMD_LOG`、`doctor` 未实现。
+- `agent::Capability` 中 `Mcp`、`StrictMcp`、`ToolAllowlist` 仍保留为探测项，未要求。
