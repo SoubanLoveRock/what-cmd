@@ -51,48 +51,54 @@ pub fn serve_stdio(ctx: ToolContext) -> Result<(), McpError> {
     })
 }
 
-/// 工具参数：单个命令名。
+/// 工具参数：单个命令名与分页偏移。
 #[derive(Debug, Deserialize, JsonSchema)]
 pub struct NameArgs {
-    /// 根命令名，如 `git`。
+    /// Root command name, for example `git`.
     pub name: String,
+    /// Byte offset of the page to read. Use 0 for the first page, then the offset given at the end of the previous page.
+    #[serde(default)]
+    pub offset: usize,
 }
 
-/// 工具参数：命令路径。
+/// 工具参数：命令路径与分页偏移。
 #[derive(Debug, Deserialize, JsonSchema)]
 pub struct PathArgs {
-    /// 子命令路径，如 `["git", "clone"]`。
+    /// Command path, for example `["git", "clone"]`.
     pub path: Vec<String>,
+    /// Byte offset of the page to read. Use 0 for the first page, then the offset given at the end of the previous page.
+    #[serde(default)]
+    pub offset: usize,
 }
 
-/// `write_description` 的工具参数。
+/// Arguments for `write_description`.
 #[derive(Debug, Deserialize, JsonSchema)]
 pub struct DescriptionInput {
-    /// 命令路径。
+    /// Command path, for example `["git", "clone"]`.
     pub path: Vec<String>,
-    /// 描述文本，最多 400 字符。
+    /// English description, at most 400 characters.
     pub description: String,
-    /// 示例，最多 3 条，每条最多 200 字符。
+    /// Up to 3 complete command lines, each at most 200 characters.
     pub examples: Vec<String>,
-    /// 下一轮要处理的子命令名。
+    /// Names of the direct subcommands, without the parent path.
     pub subcommands: Vec<String>,
 }
 
-/// `write_params` 的工具参数。
+/// Arguments for `write_params`.
 #[derive(Debug, Deserialize, JsonSchema)]
 pub struct ParamsInput {
-    /// 所属命令路径。
+    /// Command path that owns the options.
     pub path: Vec<String>,
-    /// 长参数列表。
+    /// Long options of this command.
     pub params: Vec<ParamInput>,
 }
 
-/// 单个长参数的工具参数。
+/// One long option.
 #[derive(Debug, Deserialize, JsonSchema)]
 pub struct ParamInput {
-    /// 长参数名，如 `--branch`。
+    /// Long option name, for example `--branch`.
     pub flag: String,
-    /// 参数描述。
+    /// English description of what the option changes.
     pub description: String,
 }
 
@@ -145,52 +151,65 @@ impl WhatcmdServer {
     pub fn new(ctx: ToolContext) -> Self {
         Self { ctx: Arc::new(ctx) }
     }
+
+    /// 把工具拒绝的原因追加到日志，并映射为 MCP 错误。
+    fn reject(&self, tool: &str, err: ToolError) -> ErrorData {
+        crate::generate::append_log(
+            self.ctx.log.as_deref(),
+            &self.ctx.run_id,
+            &format!("mcp-rejected {tool}: {err}"),
+        );
+        to_error(err)
+    }
 }
 
 #[tool_router]
 impl WhatcmdServer {
-    /// 读取根命令的 man 页纯文本。
+    /// 读取根命令的 man 页纯文本，每次一页。
     #[tool(
         name = "read_man",
-        description = "Return the man page text of a root command"
+        description = "Return one page (up to 8192 bytes) of the man page text of a root command. The page ends with a marker line: if it gives an offset, call this tool again with that offset to read the next page; if it says end of document, you have read everything."
     )]
     fn read_man(&self, Parameters(args): Parameters<NameArgs>) -> Result<String, ErrorData> {
-        tools::read_man(&args.name, &self.ctx).map_err(to_error)
+        tools::read_man(&args.name, args.offset, &self.ctx)
+            .map_err(|err| self.reject("read_man", err))
     }
 
-    /// 读取子命令的 `--help` 输出。
+    /// 读取子命令的 `--help` 输出，每次一页。
     #[tool(
         name = "read_help",
-        description = "Return the --help output of a command path such as [\"git\", \"clone\"]"
+        description = "Return one page (up to 8192 bytes) of the --help output of a command path such as [\"git\", \"clone\"]. The page ends with a marker line: if it gives an offset, call this tool again with that offset to read the next page; if it says end of document, you have read everything."
     )]
     fn read_help(&self, Parameters(args): Parameters<PathArgs>) -> Result<String, ErrorData> {
         let path: Vec<&str> = args.path.iter().map(String::as_str).collect();
-        tools::read_help(&path, &self.ctx).map_err(to_error)
+        tools::read_help(&path, args.offset, &self.ctx).map_err(|err| self.reject("read_help", err))
     }
 
     /// 写入命令节点的描述、示例与子命令。
     #[tool(
         name = "write_description",
-        description = "Stage a description, examples and subcommands for a command node"
+        description = "Stage an English description of what the command does (its task, the objects it acts on, and typical use cases), up to 3 examples, and the direct subcommand names. Do not describe subcommands here."
     )]
     fn write_description(
         &self,
         Parameters(input): Parameters<DescriptionInput>,
     ) -> Result<String, ErrorData> {
-        tools::write_description(input.into(), &self.ctx).map_err(to_error)?;
+        tools::write_description(input.into(), &self.ctx)
+            .map_err(|err| self.reject("write_description", err))?;
         Ok("staged".to_owned())
     }
 
     /// 写入命令下长参数的描述。
     #[tool(
         name = "write_params",
-        description = "Stage descriptions for long flags of a command node"
+        description = "Stage English descriptions for the long options (--name) of a command node. Each description states what the option changes in plain terms."
     )]
     fn write_params(
         &self,
         Parameters(input): Parameters<ParamsInput>,
     ) -> Result<String, ErrorData> {
-        tools::write_params(input.into(), &self.ctx).map_err(to_error)?;
+        tools::write_params(input.into(), &self.ctx)
+            .map_err(|err| self.reject("write_params", err))?;
         Ok("staged".to_owned())
     }
 }

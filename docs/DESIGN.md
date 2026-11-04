@@ -46,7 +46,7 @@ v1 不做（见第 14 节）：
 
 ```
 离线 reindex（一次性子进程，可后台或由 /reindex 前台执行）
-  scan($PATH) → docs(man / --help) → agent(claude -p + MCP 工具)
+  scan($PATH) → docs(man / --help) → agent(claude -p，无工具，直接返回 JSON)
     → staging（描述、参数）→ 校验 → 节点合并
     → embed（描述文本 → 向量）→ index.json + vectors.bin（原子替换）
 
@@ -57,7 +57,7 @@ v1 不做（见第 14 节）：
     → whatcmd record <key>（选中信号）
 ```
 
-MCP 由 Claude Code 通过 `--mcp-config` 拉起，运行 `whatcmd mcp --run <run_id>`。
+reindex 路径不再启动 MCP。`whatcmd mcp --run <run_id>` 仅作为历史实现保留，见第 10 节。
 
 ## 4. 子命令与退出码
 
@@ -150,6 +150,7 @@ usage_file = "~/.cache/whatcmd/usage.jsonl"
 [agent]
 backend = "auto"            # auto | claude-code | none
 batch_size = 20
+concurrency = 4             # 同时运行的 agent 批次数，0 视为 1
 
 [reindex]
 auto = true                 # shell 初始化时检测 PATH 变化并后台重建
@@ -352,8 +353,8 @@ v1 没有离线兜底。`embedding` 请求失败时，`query` 退出码 `3`，st
 3. 第 0 轮：对根命令调用 `docs` 取文档，计算 `source_hash = sha256(文档 + prompt_version)`。hash 与旧条目一致的复用。
 4. 变化或新增的节点进入队列。预置节点不进入队列，除非通过 `--names` 显式指定。
 5. 若旧索引中某根命令已不在 PATH，删除它及其非预置子树。预置节点不删除。
-6. 按树结构分批调用 agent（见 9.3）。
-7. 读取暂存区，经 `guard` 校验后合并进内存中的节点集合。agent 发现的子命令进入下一轮队列，直到 `max_depth`。
+6. 程序获取每个命令的文档，清洗并按章节裁剪后，连同固定的输出格式放进一次 agent 调用。一次调用只处理一个命令，或同一父命令下一组同类子命令（见 9.3）。agent 不调用任何工具，直接返回 JSON。
+7. 程序解析 JSON，经 `guard` 校验后合并进内存中的节点集合。子命令的提取完全由英文提示词约束（只列文档中以命令形式出现的子命令），程序侧不再做文档行匹配；少量假节点可以容忍，由推荐打分兜底。子命令进入下一轮队列前须通过帮助检查：`<cmd> <sub> --help` 输出到 stdout 才算有效（退出码非 0 也接受）；嵌套路径再试 `-h`；仍失败时回退一级，使用父命令的帮助文本；都失败则跳过并记 `skipped <key>: no doc`。根命令的 `--help` 允许输出在 stderr。直到 `max_depth`。
 8. 对所有待写入节点做 embedding（见 9.3）。
 9. 写 `index.json.tmp` 与 `vectors.bin.tmp`，fsync，rename 成正式文件。
 10. 清理已合并的暂存区记录，释放锁。
@@ -361,9 +362,10 @@ v1 没有离线兜底。`embedding` 请求失败时，`query` 退出码 `3`，st
 ### 9.3 分层与批次
 
 - 两阶段拆开：阶段 A 生成描述（agent，耗时长、有 LLM 成本）；阶段 B 做 embedding（HTTP，便宜但会失败）。阶段 A 的结果落盘到暂存区，阶段 B 失败不会导致 agent 重跑。
-- 批次按子树组织。同一批尽量包含同一父节点的子节点，并把父节点的当前描述放进提示词作为上下文，让 agent 能对照边界写描述。
+- 上下文按命令组织：一次调用只包含一个命令的文档，或同一父命令下一组同类子命令的文档。每个节点的描述由自己的文档生成，不依赖其他节点的描述，减少模型读取工具和跨节点反复查询的次数。
 - `batch_size` 是批次的节点数上限，不是纯数量切分。
-- 参数抽取由 agent 从 `--help` 中结构化抽取，只保留 `--` 长参数，短参数在提示词和校验两处都过滤掉。
+- 同一轮的批次最多 `concurrency` 个并发调用 agent。文档获取与提示词拼装在调用前串行完成；结果按批次顺序写日志、暂存区与失败列表，与串行执行一致。
+- 参数由 agent 在同一次返回的 JSON 中给出。程序只保留 `--` 长参数，短参数过滤掉并记 `warn`。
 - embedding 按 `batch_size` 分批调用。
 - embedding 文本的组成：
   - 命令节点：`路径 + 描述 + 示例`。
@@ -382,15 +384,16 @@ v1 没有离线兜底。`embedding` 请求失败时，`query` 退出码 `3`，st
 ### 9.5 失败处理
 
 - 每批独立。某批 agent 失败只影响该批节点，其他批次继续。
+- 单次调用的输出不符合结构（JSON 解析失败、字段缺失或超出限制）时重试一次，仍不合格则该命令记为失败。
 - 失败的节点保留旧条目，结束时在 stderr 汇总。
 - 全部成功退出码 `0`，有失败退出码 `1`。
-- `--names` 只重跑指定节点，可以指定预置节点。
+- `--names` 重跑指定节点，可以指定预置节点。列出的节点生成后，仍按本节的轮次规则展开它们发现的子命令，直到 `max_depth`。不比较、不复用、不删除。
 - `--auto` 下的失败只写日志，不打扰用户，下次 shell 初始化会重试。
 
 ### 9.6 Agent 能力
 
 ```rust
-pub trait AgentBackend {
+pub trait AgentBackend: Sync {   // Sync：同一轮批次在线程间并发调用
     fn id(&self) -> &'static str;
     fn capabilities(&self) -> &CapabilitySet;
     fn run_batch(&self, req: &BatchRequest) -> Result<BatchOutcome, AgentError>;
@@ -399,29 +402,30 @@ pub trait AgentBackend {
 pub enum Capability {
     NonInteractive,   // claude -p
     JsonOutput,       // --output-format json
-    Mcp,              // --mcp-config
-    StrictMcp,        // --strict-mcp-config，忽略用户已有的 MCP 配置
-    ToolAllowlist,    // --allowedTools
     RestrictedTools,  // --tools，限定内置工具集
+    JsonSchema,       // --json-schema，约束输出结构
 }
 ```
 
-`reindex` 要求上述能力全部具备。缺任何一项，拒绝运行并指出缺的是哪一项。
+`reindex` 要求 `NonInteractive`、`JsonOutput`、`RestrictedTools`、`JsonSchema` 四项全部具备，缺任何一项拒绝运行并指出缺的是哪一项。输出优先取 `structured_output`，缺失时退回解析 `result` 文本，再经程序侧校验加重试。
+
+v1 的 reindex 不再需要 `Mcp`、`StrictMcp`、`ToolAllowlist`。这三项从 `REQUIRED` 中移除。
 
 ### 9.7 Claude Code 调用形态
 
 ```
-claude -p "<批次提示词>"
+claude -p "<批次提示词，含文档与输出格式>"
   --output-format json
-  --strict-mcp-config
-  --mcp-config <临时 mcp.json>
-  --tools ""                # 具体取值待 D7/D8 验证
-  --allowedTools mcp__whatcmd__read_man,mcp__whatcmd__read_help,mcp__whatcmd__write_description,mcp__whatcmd__write_params
+  --model haiku
+  --tools ""
+  --json-schema <输出结构>   # 已在用，2026-11-04 真实运行验证
 ```
 
+- 单次调用超时 600 秒。同一轮最多 `[agent] concurrency` 个调用并发（默认 4，0 视为 1），见 9.3。
+
 - 内置工具的禁用只由 `--tools ""` 承担。实验（2026-11-03）显示：仅 `--allowedTools` 时 Bash 实际执行；`--tools ""` 时标记文件未生成。`--restricted` 在后续重跑中有一次生成了标记文件，不能作为禁用手段。`--allowedTools` 不承担禁用责任，详见第 11 节与 DEVLOG。
-- `--allowedTools` 只放行四个 whatcmd 工具，作为白名单使用，不作为禁用手段。
-- `--mcp-config` 指向临时文件，只包含 `whatcmd mcp --run <run_id>`。
+- 不再传入 `--allowedTools`、`--strict-mcp-config`、`--mcp-config`。reindex 路径不启动 `whatcmd mcp` 进程。
+- 输出格式由程序定义，至少包含 `description`、`examples`、`subcommands`、`params`（`flag`、`description`）。
 - 提示词来自 `prompts/describe.md`，通过 `include_str!` 嵌入。提示词带版本号，变化即触发增量重建。
 - 边界约束写在提示词中：命令节点的描述只覆盖本节点的行为，子命令的细节留给子节点；参数节点只描述该参数。样例需要人工检查（见第 12 节）。
 - 具体参数在实现前用 `claude --help` 核对，见第 13 节。
@@ -437,6 +441,8 @@ claude -p "<批次提示词>"
 `--version` 通过不代表能用。是否已登录，只能由 `doctor` 手动发一次极小请求确认，reindex 不会自动执行。
 
 ## 10. MCP 工具
+
+> 状态：已废弃。reindex 改为程序提供文档、模型直接返回 JSON（见 9.2 与 9.7），不再使用本节工具。`whatcmd mcp` 子命令与 `rmcp` 依赖在实现时移除。以下内容仅作为历史设计保留。
 
 `whatcmd mcp --run <run_id>`，stdio，使用 `rmcp = "=3.8.0"`，`server` 特性。
 
@@ -463,9 +469,8 @@ v1 有四个工具：
 
 边界措施：
 
-1. 内置工具用 `--tools ""` 全部禁用。这是唯一经实验验证能阻止 Bash 真实执行的参数。`--allowedTools` 只放行四个 whatcmd 工具，不能单独禁用 Bash。
-2. 模型可能在没有工具时模仿工具调用格式并编造执行结果。因此 `ClaudeBackend` 不能只看 `result` 文本判定成功，结果以暂存区文件为准（见 9.6 节）。
-2. `--strict-mcp-config` 避免继承用户已有的 MCP 配置。
+1. 内置工具用 `--tools ""` 全部禁用。这是唯一经实验验证能阻止 Bash 真实执行的参数。reindex 不再传 `--allowedTools`、`--mcp-config`、`--strict-mcp-config`，模型没有任何可调用的工具。
+2. 模型只返回 JSON，由程序解析、经 `guard` 校验后写入暂存区。模型编造的内容最多变成错误描述或假节点，不会触发任何执行。
 3. 命令名正则 `^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$`，子命令路径逐 token 校验，且必须存在于本次扫描结果或命令树中。不接受路径、空格、参数。
 4. 参数名正则 `^--[A-Za-z0-9][A-Za-z0-9-]*$`，长度上限与命令名一致。
 5. 描述长度 ≤ 400 字符，示例每条 ≤ 200 字符，最多 3 条，去除控制字符，不含换行和制表符。
@@ -483,7 +488,7 @@ v1 有四个工具：
 - `score`：精确置顶、子树衰减、`min_score` 过滤、回退判定。
 - 插入文本：去重（`git clone` 已在末尾时不追加）、参数 `=` 前比较、插入前导空格。
 - `guard`：合法与非法命令名、参数名（路径、空格、`..`、`;`、`$()`、短参数）。
-- `agent/claude.rs`：参数拼装快照，确认 `--allowedTools` 只含四个 whatcmd 工具，不含 Bash。
+- `agent/claude.rs`：参数拼装快照，确认含 `--tools ""`、`--json-schema`、`--model haiku`，不含 `--allowedTools` 与 MCP 参数。
 - `agent/detect.rs`：用假 `--help` 文本测试能力解析，包括参数缺失。
 - `index`：`schema_version` 不匹配时拒绝加载；`vectors.bin` 长度与节点数不一致时拒绝加载。
 - `usage`：只记录 key 和时间，不含查询文本。
@@ -512,15 +517,15 @@ v1 有四个工具：
 
 | 项目 | 状态 |
 |---|---|
-| Claude Code 参数（`-p`、`--output-format json`、`--tools`、`--allowedTools`、`--mcp-config`、`--strict-mcp-config`、`--bare`） | 待本机 `claude --help` 完整核对 |
+| Claude Code 参数（`-p`、`--output-format json`、`--model`、`--tools`、`--json-schema`） | 已在真实运行中使用（2026-11-04，git 全树 1216 节点）；`--allowedTools`、MCP 参数不再使用 |
 | `--allowedTools` 是否真的禁用未列出的内置工具 | 已验证：不能禁用。`--tools ""` 承担禁用，样本有限，见第 11 节与 DEVLOG |
 | `--restricted` 是否纳入能力检查 | 暂不纳入。重跑中出现过标记文件，不可作为禁用手段，见 DEVLOG |
 | 向量存储形式 | 暂定 `vectors.bin`，与 `index.json` 分开，待实现时确认 |
-| 子命令发现方式 | 暂定由 agent 在 `write_description` 中给出 `subcommands`，分轮展开 |
+| 子命令发现方式 | 已实现：模型在 `subcommands` 中给出直接子命令，程序用 `--help` 检查后分轮展开（见 9.2、9.5）；个别子命令（如 `git history`）仍有遗漏，待跟进 |
 | 查询结果中 `via` 的展示格式 | 暂定 `git  (pull: ...)`，待样本确认 |
 | 打分系数（`decay`、`min_score`、`usage_*`） | 代码常量，待固定样本调参 |
-| rmcp 3.x 的 API | 实现时对照 docs.rs |
-| embedding 的 HTTP 客户端与精确版本 | 实现时选定，写入 DEVLOG |
+| rmcp 3.x 的 API | 不再需要。MCP 已废弃，残留代码待清理 |
+| embedding 的 HTTP 客户端与精确版本 | 已选定 `ureq =3.5.1`（rustls、json），见 DEVLOG |
 | 快捷键 | `Ctrl-G` |
 
 ## 14. 后续阶段（v1 之后）

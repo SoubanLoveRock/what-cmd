@@ -18,3 +18,7 @@
 - 2026-11-03 · D9（进行中） · generate（staging）、mcp（tools） · 暂存区 append 与四个工具的纯函数层，新增 rmcp =3.8.0（server、macros）；纯函数单元测试 11 项与暂存区测试 2 项通过；rmcp 包装层与 CLI 子命令未完成。
 - 2026-11-03 · D9（有保留） · mcp（tools、mod）、generate（staging）、cli（mcp 子命令）、process 无变化 · 四个工具的纯函数层与 rmcp 包装层，`whatcmd mcp --run <id>` 启动 stdio 服务；serve_stdio 为同步函数，tokio 直接声明；手动 stdio 验收通过 initialize、tools/list、tools/call，根命令写入正常；子命令写入因 known_nodes 为空被拒绝，待 D10 接入索引；lib 189 项加集成测试 1 项通过。
 - 2026-11-04 · D9（修正） · mcp（tools、mod） · serverInfo 设为 whatcmd 0.1.0；错误拆分为 UnknownCommand 与 NotInTree；四项检查通过，lib 189 项加集成测试 1 项通过；未重跑手动 stdio 验收。
+- 2026-11-04 · D10 · generate（mod、merge、plan）、cli（reindex、mcp 的 known_nodes） · 锁（File::try_lock）、增量计划、阶段 A/B、reindex.log；`--names` 模式展开子命令（DESIGN 9.5 已同步）；真实运行 `reindex --names git` 退出码 0，索引 234 个节点，子命令经队列进入索引；lib 219 项、集成测试 1 项通过。
+- 2026-11-04 · D10（重跑） · generate（prompts/describe.md）、mcp（tools） · 提示词 v2，描述改为英文并以"做什么"为主；重跑 `reindex --names git` 退出码 0，写入 56 个节点，失败 0；git diff、log、show、rebase 已重新生成英文描述。
+- 2026-11-04 · D10（提示词 v5、并发、--help 检查） · generate（mod、prompts/describe.md）、agent（mod、claude、detect）、docs、config · 子命令提取改为只依赖提示词，删除程序侧文档行过滤，PROMPT_VERSION=5；JsonSchema 列为必需能力；`run_batches` 并发调用，`[agent] concurrency` 默认 4；子命令 `--help` 只认 stdout，嵌套路径回退 `-h` 与父命令帮助，无文档不入队；`reindex --names git` 302s，生成 1216、失败 0，仅跳过 7 个未安装子命令；lib 236 项通过，fmt、clippy 通过；未提交。
+- 2026-11-04 · D10（收尾） · generate（mod）、DESIGN 第 11、12、13 节 · 去掉 `already seen` 日志行；确认 `agent_version` 为 `2.1.296 (Claude Code)`；DESIGN 安全、测试、待确认项与当前实现同步；lib 236 项通过；未提交。

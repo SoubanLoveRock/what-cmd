@@ -15,7 +15,7 @@ use tracing::{debug, info, warn};
 use crate::config::DocsConfig;
 use crate::guard::name::validate_command;
 use crate::guard::output::sanitize_text;
-use crate::process::{ProcError, run_captured};
+use crate::process::{Finished, ProcError, run_captured, run_finished};
 use crate::scan::find_in_path;
 use crate::types::{CommandName, DocSource};
 
@@ -113,11 +113,68 @@ fn fetch_help_in(path_var: &str, path: &[CommandName], cfg: &DocsConfig) -> Resu
         .join(" ");
     let missing = || DocError::Missing(joined.clone());
     let bin = find_in_path(path_var, root).ok_or_else(missing)?;
+    let timeout = Duration::from_millis(cfg.help_timeout_ms);
+    if rest.is_empty() {
+        let raw = capture(&bin, &["--help"], timeout, cfg.max_doc_bytes)?.ok_or_else(missing)?;
+        return Ok(doc_from(&raw, DocSource::Help, cfg));
+    }
+    if let Some(doc) = subcommand_help(&bin, rest, &joined, timeout, cfg)? {
+        return Ok(doc);
+    }
+    // 嵌套子命令常拿不到自己的帮助：`git bisect good -h` 只报错，`git submodule add -h` 写到 stderr，
+    // 不在仓库里时 `git stash list -h` 也会失败。父命令的文档（git 即其 man 页）通常已覆盖这些子命令，
+    // 退回父命令一层。只退一层：父命令自己也取不到帮助时视为无文档，避免假节点层层继承。
+    if rest.len() > 1 {
+        let parent = &rest[..rest.len() - 1];
+        let parent_joined = joined.rsplit_once(' ').map_or(joined.as_str(), |(p, _)| p);
+        if let Some(doc) = subcommand_help(&bin, parent, parent_joined, timeout, cfg)? {
+            debug!(path = %joined, parent = parent_joined, "using parent help for nested subcommand");
+            return Ok(doc);
+        }
+    }
+    Err(missing())
+}
+
+/// 运行 `<bin> <rest...> --help`，只认 stdout：stdout 为空时，stderr 多半是
+/// "'x' is not a git command" 之类的报错，说明子命令不存在或未安装，返回 `None`。
+/// 退出码不作判断，不少工具打印帮助后以非零退出。根命令不走这里，部分工具把帮助写到 stderr。
+fn subcommand_help(
+    bin: &Path,
+    rest: &[CommandName],
+    joined: &str,
+    timeout: Duration,
+    cfg: &DocsConfig,
+) -> Result<Option<Doc>, DocError> {
     let mut args: Vec<&str> = rest.iter().map(CommandName::as_str).collect();
     args.push("--help");
-    let timeout = Duration::from_millis(cfg.help_timeout_ms);
-    let raw = capture(&bin, &args, timeout, cfg.max_doc_bytes)?.ok_or_else(missing)?;
-    Ok(doc_from(&raw, DocSource::Help, cfg))
+    let done = run_doc(bin, &args, timeout, cfg.max_doc_bytes)?;
+    if !done.stdout.is_empty() {
+        return Ok(Some(doc_from(&done.stdout, DocSource::Help, cfg)));
+    }
+    log_help_failure(joined, "--help", &done);
+    // `git <a> <b> --help` 会被改写成 `git help "a b"` 而失败，嵌套子命令再试一次 `-h`。
+    if rest.len() > 1 {
+        args.pop();
+        args.push("-h");
+        let done = run_doc(bin, &args, timeout, cfg.max_doc_bytes)?;
+        if !done.stdout.is_empty() {
+            return Ok(Some(doc_from(&done.stdout, DocSource::Help, cfg)));
+        }
+        log_help_failure(joined, "-h", &done);
+    }
+    Ok(None)
+}
+
+/// 子命令帮助没有 stdout 时记录退出码与 stderr 片段。
+fn log_help_failure(path: &str, flag: &str, done: &Finished) {
+    let len = done.stderr.len().min(DEBUG_SNIPPET_BYTES);
+    debug!(
+        path,
+        flag,
+        code = ?done.code,
+        stderr = %String::from_utf8_lossy(&done.stderr[..len]),
+        "subcommand help printed nothing on stdout"
+    );
 }
 
 /// 以 PATH 字符串为参数的优先级获取：单个根命令先 man，失败后 `--help`。
@@ -162,10 +219,26 @@ fn capture(
     timeout: Duration,
     max_bytes: usize,
 ) -> Result<Option<Vec<u8>>, DocError> {
-    run_captured(program, args, &DOC_ENV, timeout, max_bytes).map_err(|err| match err {
-        ProcError::Timeout(ms) => DocError::Timeout(ms),
-        ProcError::Io(err) => DocError::Io(err),
-    })
+    run_captured(program, args, &DOC_ENV, timeout, max_bytes).map_err(DocError::from)
+}
+
+/// 以文档环境运行子进程，返回退出码与两路输出。
+fn run_doc(
+    program: &Path,
+    args: &[&str],
+    timeout: Duration,
+    max_bytes: usize,
+) -> Result<Finished, DocError> {
+    run_finished(program, args, &DOC_ENV, timeout, max_bytes).map_err(DocError::from)
+}
+
+impl From<ProcError> for DocError {
+    fn from(err: ProcError) -> Self {
+        match err {
+            ProcError::Timeout(ms) => Self::Timeout(ms),
+            ProcError::Io(err) => Self::Io(err),
+        }
+    }
 }
 
 /// 当前进程的 PATH，未设置时为空串。
@@ -299,6 +372,100 @@ mod tests {
         fake_bin(&bin, "quiet", "exit 0");
         let err = fetch_help_in(&bin.display().to_string(), &path_of(&["quiet"]), &cfg());
         assert!(matches!(err, Err(DocError::Missing(_))));
+    }
+
+    #[test]
+    fn subcommand_help_on_stderr_only_is_missing() {
+        // 模拟 `git instaweb --help`：未安装的子命令只在 stderr 报错。
+        let dir = tempdir();
+        let bin = dir.path().join("bin");
+        fake_bin(
+            &bin,
+            "foo",
+            "echo \"foo: '$1' is not a foo command\" >&2; exit 1",
+        );
+        let err = fetch_help_in(
+            &bin.display().to_string(),
+            &path_of(&["foo", "nope"]),
+            &cfg(),
+        );
+        assert!(matches!(err, Err(DocError::Missing(_))));
+    }
+
+    #[test]
+    fn subcommand_help_on_stdout_with_nonzero_exit_is_kept() {
+        let dir = tempdir();
+        let bin = dir.path().join("bin");
+        fake_bin(&bin, "foo", "echo \"usage: foo $1\"; exit 129");
+        let doc = fetch_help_in(
+            &bin.display().to_string(),
+            &path_of(&["foo", "add"]),
+            &cfg(),
+        )
+        .unwrap();
+        assert!(doc.text.contains("usage: foo add"));
+    }
+
+    #[test]
+    fn nested_subcommand_falls_back_to_short_help() {
+        // 模拟 `git stash list --help` 失败而 `git stash list -h` 打印用法。
+        let dir = tempdir();
+        let bin = dir.path().join("bin");
+        fake_bin(
+            &bin,
+            "foo",
+            "if [ \"$3\" = -h ]; then echo \"usage: foo $1 $2\"; exit 129; fi\n\
+             echo \"'$1 $2' is not a foo command\" >&2; exit 1",
+        );
+        let doc = fetch_help_in(
+            &bin.display().to_string(),
+            &path_of(&["foo", "stash", "list"]),
+            &cfg(),
+        )
+        .unwrap();
+        assert!(doc.text.contains("usage: foo stash list"));
+    }
+
+    #[test]
+    fn nested_subcommand_falls_back_to_parent_help() {
+        // 模拟 `git bisect good`：自身 `--help` 与 `-h` 都只报错，父命令 `git bisect --help` 有文档。
+        let dir = tempdir();
+        let bin = dir.path().join("bin");
+        fake_bin(
+            &bin,
+            "foo",
+            "if [ \"$2\" = --help ]; then echo \"manual for foo $1\"; exit 0; fi\n\
+             echo \"'$1 $2' is not a foo command\" >&2; exit 1",
+        );
+        let doc = fetch_help_in(
+            &bin.display().to_string(),
+            &path_of(&["foo", "bisect", "good"]),
+            &cfg(),
+        )
+        .unwrap();
+        assert!(doc.text.contains("manual for foo bisect"));
+    }
+
+    #[test]
+    fn nested_subcommand_without_parent_help_is_missing() {
+        let dir = tempdir();
+        let bin = dir.path().join("bin");
+        fake_bin(&bin, "foo", "echo 'not a foo command' >&2; exit 1");
+        let err = fetch_help_in(
+            &bin.display().to_string(),
+            &path_of(&["foo", "p4", "submit"]),
+            &cfg(),
+        );
+        assert!(matches!(err, Err(DocError::Missing(_))));
+    }
+
+    #[test]
+    fn root_help_on_stderr_is_still_accepted() {
+        let dir = tempdir();
+        let bin = dir.path().join("bin");
+        fake_bin(&bin, "foo", "echo 'usage: foo' >&2; exit 2");
+        let doc = fetch_help_in(&bin.display().to_string(), &path_of(&["foo"]), &cfg()).unwrap();
+        assert!(doc.text.contains("usage: foo"));
     }
 
     /// `pgrep <args>` 是否找到进程。退出码 0 为找到，1 为没有。

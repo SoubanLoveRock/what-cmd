@@ -63,6 +63,8 @@ pub struct AgentConfig {
     pub backend: BackendChoice,
     /// 每批的节点数上限，默认 20。
     pub batch_size: usize,
+    /// 同时运行的批次数上限，默认 4，0 按 1 处理。
+    pub concurrency: usize,
 }
 
 impl Default for AgentConfig {
@@ -70,6 +72,7 @@ impl Default for AgentConfig {
         Self {
             backend: BackendChoice::Auto,
             batch_size: 20,
+            concurrency: 4,
         }
     }
 }
@@ -308,6 +311,7 @@ usage_file = "~/cache/usage.jsonl"
 [agent]
 backend = "claude-code"
 batch_size = 5
+concurrency = 2
 
 [reindex]
 auto = false
@@ -331,6 +335,7 @@ max_doc_bytes = 1024
         let cfg = parse(FULL).unwrap();
         assert_eq!(cfg.agent.backend, BackendChoice::ClaudeCode);
         assert_eq!(cfg.agent.batch_size, 5);
+        assert_eq!(cfg.agent.concurrency, 2);
         assert!(!cfg.reindex.auto);
         assert_eq!(cfg.reindex.max_depth, 2);
         assert_eq!(cfg.embedding.dimensions, 384);
@@ -390,6 +395,7 @@ max_doc_bytes = 1024
         let cfg = load_from(&dir.path().join("absent.toml"), dir.path()).unwrap();
         assert_eq!(cfg.paths.index_dir, dir.path().join(".local/share/whatcmd"));
         assert_eq!(cfg.agent.batch_size, 20);
+        assert_eq!(cfg.agent.concurrency, 4);
         assert!(cfg.embedding.endpoint.is_empty());
     }
 

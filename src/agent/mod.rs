@@ -7,7 +7,6 @@ pub mod claude;
 pub mod detect;
 
 use std::collections::BTreeSet;
-use std::path::Path;
 
 use crate::types::CommandName;
 
@@ -26,19 +25,19 @@ pub enum Capability {
     ToolAllowlist,
     /// `--tools`，限定内置工具集。
     RestrictedTools,
+    /// `--json-schema`，约束输出结构。
+    JsonSchema,
 }
 
 /// 后端报告的能力集合。
 pub type CapabilitySet = BTreeSet<Capability>;
 
 /// `reindex` 要求的全部能力。
-pub const REQUIRED: [Capability; 6] = [
+pub const REQUIRED: [Capability; 4] = [
     Capability::NonInteractive,
     Capability::JsonOutput,
-    Capability::Mcp,
-    Capability::StrictMcp,
-    Capability::ToolAllowlist,
     Capability::RestrictedTools,
+    Capability::JsonSchema,
 ];
 
 /// 返回 [`REQUIRED`] 中不在 `set` 里的能力，保持声明顺序。
@@ -58,8 +57,8 @@ pub struct BatchRequest<'a> {
     pub paths: &'a [Vec<CommandName>],
     /// 来自 `prompts/describe.md`，已附父节点上下文。
     pub prompt: &'a str,
-    /// 指向临时生成的 `mcp.json`。
-    pub mcp_config: &'a Path,
+    /// `--json-schema` 的取值，约束 agent 的输出结构。
+    pub schema: &'a str,
 }
 
 /// 一批执行的结果。描述与参数以暂存区为准，这里只用于日志。
@@ -71,8 +70,8 @@ pub struct BatchOutcome {
     pub raw_output: String,
 }
 
-/// Agent 后端的统一接口。
-pub trait AgentBackend {
+/// Agent 后端的统一接口。要求 `Sync`，因为各批会在多个线程中并发执行。
+pub trait AgentBackend: Sync {
     /// 后端标识，如 `claude-code`。
     fn id(&self) -> &'static str;
     /// 已探测到的能力。
@@ -121,10 +120,10 @@ mod tests {
     fn partial_set_reports_only_the_gap() {
         let mut set = CapabilitySet::new();
         set.insert(Capability::NonInteractive);
-        set.insert(Capability::StrictMcp);
+        set.insert(Capability::JsonSchema);
         let missing = missing_capabilities(&set);
         assert!(!missing.contains(&Capability::NonInteractive));
-        assert!(!missing.contains(&Capability::StrictMcp));
+        assert!(!missing.contains(&Capability::JsonSchema));
         assert!(missing.contains(&Capability::RestrictedTools));
         assert_eq!(missing.len(), REQUIRED.len() - 2);
     }

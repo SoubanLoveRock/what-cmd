@@ -1,7 +1,6 @@
-//! Claude Code 适配：命令行参数拼装。
+//! Claude Code 适配：命令行参数拼装与输出解析。
 //!
-//! 参数快照是本模块的主要测试对象。`--allowedTools` 的取值固定为四个 whatcmd 工具，
-//! 不接受调用方传入的工具名，因此 Bash 等内置工具不可能经由这里被放行。
+//! reindex 不给模型任何工具（`--tools ""`），文档由程序放进提示词，输出结构由 `--json-schema` 约束。
 //! [`ClaudeBackend`] 通过 [`crate::process::run_finished`] 启动 `claude`，与 `docs` 共用超时与
 //! 进程组清理逻辑。输出解析见 [`parse_output`]。
 
@@ -23,18 +22,9 @@ const OUTPUT_LIMIT_BYTES: usize = 4 * 1024 * 1024;
 /// 默认模型别名，交给 `claude` 解析为当前 Haiku 档模型。固定取值，不接受外部输入。
 pub const CLAUDE_MODEL: &str = "haiku";
 
-/// 放行的 whatcmd MCP 工具。顺序固定，不接受外部输入。
-pub const ALLOWED_TOOLS: [&str; 4] = [
-    "mcp__whatcmd__read_man",
-    "mcp__whatcmd__read_help",
-    "mcp__whatcmd__write_description",
-    "mcp__whatcmd__write_params",
-];
-
 /// 纯函数：拼装 `claude` 的命令行参数，不含程序名。
 ///
-/// 内置工具通过 `--tools ""` 全部禁用，`--allowedTools` 只放行 [`ALLOWED_TOOLS`]。
-/// 提示词经 `-p` 传入，MCP 配置只指向调用方提供的临时文件。
+/// 内置工具通过 `--tools ""` 全部禁用，且不传任何 MCP 参数。输出结构由 `--json-schema` 约束。
 pub fn build_args(req: &BatchRequest<'_>) -> Vec<OsString> {
     vec![
         "-p".into(),
@@ -43,13 +33,10 @@ pub fn build_args(req: &BatchRequest<'_>) -> Vec<OsString> {
         "json".into(),
         "--model".into(),
         CLAUDE_MODEL.into(),
-        "--strict-mcp-config".into(),
-        "--mcp-config".into(),
-        req.mcp_config.as_os_str().to_owned(),
         "--tools".into(),
         "".into(),
-        "--allowedTools".into(),
-        ALLOWED_TOOLS.join(",").into(),
+        "--json-schema".into(),
+        req.schema.into(),
     ]
 }
 
@@ -60,18 +47,23 @@ struct ClaudeResult {
     is_error: bool,
     #[serde(default)]
     result: String,
+    #[serde(default)]
+    structured_output: Option<serde_json::Value>,
 }
 
 /// 纯函数：解析 `--output-format json` 的标准输出。
 ///
+/// 指定 `--json-schema` 时，结构化结果在 `structured_output` 中，`result` 只作为兜底。
 /// `is_error` 为真时 `ok` 为 false。JSON 不合法时返回 [`AgentError::BadOutput`]。
 pub fn parse_output(stdout: &[u8]) -> Result<BatchOutcome, AgentError> {
     let parsed: ClaudeResult =
         serde_json::from_slice(stdout).map_err(|e| AgentError::BadOutput(format!("json: {e}")))?;
-    Ok(BatchOutcome {
-        ok: !parsed.is_error,
-        raw_output: parsed.result,
-    })
+    let ok = !parsed.is_error;
+    let raw_output = match parsed.structured_output {
+        Some(value) => value.to_string(),
+        None => parsed.result,
+    };
+    Ok(BatchOutcome { ok, raw_output })
 }
 
 /// Claude Code 后端。`bin` 由探测阶段给出，`timeout` 为单批的时限。
@@ -129,16 +121,18 @@ mod tests {
     use std::path::{Path, PathBuf};
     use std::time::Duration;
 
-    use super::{ALLOWED_TOOLS, ClaudeBackend, build_args, parse_output};
+    use super::{ClaudeBackend, build_args, parse_output};
     use crate::agent::{AgentBackend, AgentError, BatchRequest, REQUIRED};
     use crate::testutil::tempdir;
 
-    fn request<'a>(prompt: &'a str, mcp: &'a Path) -> BatchRequest<'a> {
+    const SCHEMA: &str = "{\"type\":\"object\"}";
+
+    fn request(prompt: &str) -> BatchRequest<'_> {
         BatchRequest {
             run_id: "run-test",
             paths: &[],
             prompt,
-            mcp_config: mcp,
+            schema: SCHEMA,
         }
     }
 
@@ -150,8 +144,7 @@ mod tests {
 
     #[test]
     fn args_snapshot() {
-        let mcp = Path::new("mcp.json");
-        let args = strings(&build_args(&request("DESCRIBE", mcp)));
+        let args = strings(&build_args(&request("DESCRIBE")));
         assert_eq!(
             args,
             vec![
@@ -161,52 +154,66 @@ mod tests {
                 "json",
                 "--model",
                 "haiku",
-                "--strict-mcp-config",
-                "--mcp-config",
-                "mcp.json",
                 "--tools",
                 "",
-                "--allowedTools",
-                "mcp__whatcmd__read_man,mcp__whatcmd__read_help,mcp__whatcmd__write_description,mcp__whatcmd__write_params",
+                "--json-schema",
+                SCHEMA,
             ]
         );
     }
 
     #[test]
-    fn allowed_tools_value_is_exactly_the_four_whatcmd_tools() {
-        let mcp = Path::new("mcp.json");
-        let args = strings(&build_args(&request("p", mcp)));
-        let idx = args.iter().position(|a| a == "--allowedTools").unwrap();
-        let allowed: Vec<&str> = args[idx + 1].split(',').collect();
-        assert_eq!(allowed, ALLOWED_TOOLS);
-        assert_eq!(allowed.len(), 4);
-    }
-
-    #[test]
-    fn no_bash_or_builtin_tool_name_appears_anywhere() {
-        let mcp = Path::new("mcp.json");
-        let args = strings(&build_args(&request("describe git", mcp)));
+    fn no_mcp_or_bash_appears_in_args() {
+        let args = strings(&build_args(&request("describe git")));
         for arg in &args {
             let lower = arg.to_ascii_lowercase();
+            assert!(!lower.contains("mcp"), "mcp found in {arg:?}");
             assert!(!lower.contains("bash"), "bash found in {arg:?}");
-            assert!(!lower.contains("powershell"), "powershell found in {arg:?}");
         }
     }
 
     #[test]
     fn builtin_tools_are_disabled_with_empty_tools_value() {
-        let mcp = Path::new("mcp.json");
-        let args = strings(&build_args(&request("p", mcp)));
+        let args = strings(&build_args(&request("p")));
         let idx = args.iter().position(|a| a == "--tools").unwrap();
         assert_eq!(args[idx + 1], "");
     }
 
     #[test]
     fn prompt_is_passed_as_a_single_argument() {
-        let mcp = Path::new("mcp.json");
         let prompt = "line one\nline two; $(not run)";
-        let args = strings(&build_args(&request(prompt, mcp)));
+        let args = strings(&build_args(&request(prompt)));
         assert_eq!(args[1], prompt);
+    }
+
+    #[test]
+    fn parse_output_prefers_structured_output() {
+        let out = parse_output(
+            br#"{"is_error":false,"result":"text","structured_output":{"commands":[]}}"#,
+        )
+        .unwrap();
+        assert!(out.ok);
+        assert_eq!(out.raw_output, r#"{"commands":[]}"#);
+    }
+
+    #[test]
+    fn parse_output_falls_back_to_result_text() {
+        let out = parse_output(br#"{"is_error":false,"result":"plain"}"#).unwrap();
+        assert_eq!(out.raw_output, "plain");
+    }
+
+    #[test]
+    fn parse_output_reads_error_flag() {
+        let bad = parse_output(br#"{"is_error":true,"result":"nope"}"#).unwrap();
+        assert!(!bad.ok);
+    }
+
+    #[test]
+    fn parse_output_rejects_non_json() {
+        assert!(matches!(
+            parse_output(b"not json"),
+            Err(AgentError::BadOutput(_))
+        ));
     }
 
     /// 在 `dir` 下写一个假 `claude`，写完后落盘再赋予执行权限，避免 ETXTBSY 类的竞争。
@@ -231,64 +238,34 @@ mod tests {
     }
 
     #[test]
-    fn parse_output_reads_result_and_error_flag() {
-        let ok = parse_output(br#"{"is_error":false,"result":"done"}"#).unwrap();
-        assert!(ok.ok);
-        assert_eq!(ok.raw_output, "done");
-        let bad = parse_output(br#"{"is_error":true,"result":"nope"}"#).unwrap();
-        assert!(!bad.ok);
-    }
-
-    #[test]
-    fn parse_output_rejects_non_json() {
-        assert!(matches!(
-            parse_output(b"not json"),
-            Err(AgentError::BadOutput(_))
-        ));
-    }
-
-    #[test]
     fn successful_run_passes_fixed_args_and_parses_output() {
         let dir = tempdir();
         let args_file = dir.path().join("args.txt");
         let bin = fake_claude(
             &dir.path().join("bin"),
             &format!(
-                "printf '%s\\n' \"$@\" > '{}'\nprintf '%s' '{{\"is_error\":false,\"result\":\"ok\"}}'",
+                "printf '%s\\n' \"$@\" > '{}'\nprintf '%s' '{{\"is_error\":false,\"structured_output\":{{\"ok\":true}}}}'",
                 args_file.display()
             ),
         );
-        let mcp = Path::new("mcp.json");
-        let req = BatchRequest {
-            run_id: "run-test",
-            paths: &[],
-            prompt: "DESCRIBE",
-            mcp_config: mcp,
-        };
+        let req = request("DESCRIBE");
         let outcome = backend(bin, Duration::from_secs(5))
             .run_batch(&req)
             .unwrap();
         assert!(outcome.ok);
-        assert_eq!(outcome.raw_output, "ok");
+        assert_eq!(outcome.raw_output, r#"{"ok":true}"#);
 
         let recorded = fs::read_to_string(&args_file).unwrap();
-        assert!(recorded.contains("--allowedTools"));
-        assert!(recorded.contains(ALLOWED_TOOLS[0]));
-        assert!(!recorded.to_ascii_lowercase().contains("bash"));
+        assert!(recorded.contains("--json-schema"));
+        assert!(!recorded.to_ascii_lowercase().contains("mcp"));
     }
 
     #[test]
     fn nonzero_exit_is_exit_status() {
         let dir = tempdir();
         let bin = fake_claude(&dir.path().join("bin"), "exit 3");
-        let req = BatchRequest {
-            run_id: "run-test",
-            paths: &[],
-            prompt: "p",
-            mcp_config: Path::new("mcp.json"),
-        };
         let err = backend(bin, Duration::from_secs(5))
-            .run_batch(&req)
+            .run_batch(&request("p"))
             .unwrap_err();
         assert!(matches!(err, AgentError::ExitStatus(3)));
     }
@@ -297,14 +274,8 @@ mod tests {
     fn slow_run_is_timeout() {
         let dir = tempdir();
         let bin = fake_claude(&dir.path().join("bin"), "sleep 30");
-        let req = BatchRequest {
-            run_id: "run-test",
-            paths: &[],
-            prompt: "p",
-            mcp_config: Path::new("mcp.json"),
-        };
         let err = backend(bin, Duration::from_millis(300))
-            .run_batch(&req)
+            .run_batch(&request("p"))
             .unwrap_err();
         assert!(matches!(err, AgentError::Timeout));
     }
@@ -317,15 +288,9 @@ mod tests {
             &dir.path().join("bin"),
             &format!("touch '{}'", marker.display()),
         );
-        let req = BatchRequest {
-            run_id: "run-test",
-            paths: &[],
-            prompt: "p",
-            mcp_config: Path::new("mcp.json"),
-        };
         let mut b = backend(bin, Duration::from_secs(5));
         b.capabilities.clear();
-        let err = b.run_batch(&req).unwrap_err();
+        let err = b.run_batch(&request("p")).unwrap_err();
         assert!(matches!(err, AgentError::MissingCapability(_)));
         assert!(!marker.exists(), "claude must not be spawned");
     }

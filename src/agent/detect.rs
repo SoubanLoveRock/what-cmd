@@ -34,6 +34,9 @@ pub fn parse_capabilities(help_text: &str) -> CapabilitySet {
     if has(&["--tools"]) {
         caps.insert(Capability::RestrictedTools);
     }
+    if has(&["--json-schema"]) {
+        caps.insert(Capability::JsonSchema);
+    }
     caps
 }
 
@@ -103,10 +106,10 @@ mod tests {
     }
 
     #[test]
-    fn missing_strict_mcp_drops_strict_mcp() {
-        let text = without_lines(HELP, "  --strict-mcp-config");
+    fn missing_json_schema_drops_json_schema() {
+        let text = without_lines(HELP, "  --json-schema");
         let caps = parse_capabilities(&text);
-        assert_eq!(missing_capabilities(&caps), vec![Capability::StrictMcp]);
+        assert_eq!(missing_capabilities(&caps), vec![Capability::JsonSchema]);
     }
 
     #[test]

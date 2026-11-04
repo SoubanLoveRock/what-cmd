@@ -802,3 +802,138 @@ D9 的 rmcp 包装层、`whatcmd mcp --run <run_id>` 子命令已接入，并完
 **遗留问题**
 
 - 子命令写入仍待 D10 接入索引。
+
+## 2026-11-04 D10 生成流程、子命令队列与 reindex.log
+
+**背景**
+
+D10 实现 reindex 编排：锁、增量计划、阶段 A（分批调用 agent）、阶段 B（embedding 与合并）、`reindex` 子命令，以及 `mcp` 子命令的 `known_nodes`。真实运行中发现子命令没有进入索引，原因是 `--names` 模式在第一轮后直接退出，队列从未运行。
+
+**决定**
+
+1. `--names` 模式也展开子命令：列出的节点生成后，继续处理它们发现的子命令，范围仍由 `max_depth` 限制。这改变了 DESIGN 9.5 对 `--names` 的原定义，已同步修改 DESIGN。不比较、不复用、不删除的约束不变。
+2. 不采用 `reindex --full` 作为验证手段，原因是成本与范围过大。
+3. `reindex.log` 位于 `usage_file` 的父目录（缓存目录），每行以 `run_id` 开头，记录暂存记录、agent 失败、embedding 失败、合并数量，以及每轮发现的子命令数。没有文档而跳过的子命令记 `skipped <key>: no doc`。写入失败只记 `warn`。
+4. 子命令的 `source_hash` 不比较，本轮发现即重新生成。
+5. 偏离 INTERFACES 16.3 的签名：`generate_descriptions` 返回失败列表而非 `Result`；`embed_and_merge` 增加 `removed`、`sources`、`stamp` 参数；`make_plan` 用 `full: bool` 替代 `prompt_version`；`reindex` 通过 `Inputs` 结构体接收参数；`DocFetch<'a>` 为带生命周期的类型别名。
+
+**理由**
+
+- `--names` 是人工验证和局部修复的入口，不展开子命令时无法验证队列。展开范围由 `max_depth` 限制，成本可控。
+
+**验证**
+
+- fmt、`clippy --all-targets -D warnings` 退出码均为 0。`cargo test` lib 219 项、集成测试 1 项全部通过，退出码 0。新增 `names_mode_expands_subcommands`。
+- 真实运行（`reindex --names git`，SiliconFlow `BAAI/bge-m3` 1024 维，`claude -p` 经 Cherry 路由）：退出码 0。`discovered 24 subcommands`，最终 `merged 234`，索引含 `git` 根命令、24 个一级子命令、`git bisect` 与 `git history` 下的二级子命令。`git bisect` 的三级子命令进入索引，但 `max_depth = 3` 不再展开其子节点。暂存区清空。`reindex.log` 与索引中均未发现 key。
+- 根命令 `git` 的 `doc_source` 为 `man`，子命令为 `help`。
+
+**观察**
+
+- 部分描述为中文，`git bisect` 下的子命令描述相似度高，属于生成质量问题，需要抽样检查。
+- 索引 `generator.agent_version` 仍为 `unknown`。
+
+**遗留问题**
+
+- `agent_version` 仍写死为 `unknown`。
+- `mcp` 子命令的拒绝原因未单独写入 `reindex.log`，只能从合并结果间接判断。
+- 配置 `WHATCMD_EMBEDDING_API_KEY` 所用的 SiliconFlow key 曾出现在对话中，待用户轮换。
+
+## 2026-11-04 D10 重跑：提示词 v2 与英文描述
+
+**背景**
+
+提示词改为英文，描述以"做什么"为主。用 `reindex --names git` 重跑，核对英文描述与子命令队列。
+
+**结果**
+
+- 退出码 0，`generated 56, reused 0, removed 0, failed 0`。
+- `git diff`、`git log`、`git show`、`git rebase` 在本次 run 中重新生成英文描述，暂存记录已确认。
+- `merged 56` 是本次写入的节点数，不是索引总数，索引总数未统计。
+
+**遗留问题**
+
+- 旧中文条目（`git diff`、`log`、`rebase`、`show`）变旧的原因未确认。本次重跑已覆盖它们，但没有查清旧条目为何未被更新。
+- `reindex.log` 中大量 `skipped ...: already seen`，同一子命令在多轮重复出现，原因未查清。
+- `agent_version` 与 MCP 拒绝日志在本次重跑的索引与日志中未逐项核对。
+- SiliconFlow key 待用户轮换。
+
+## 2026-11-04 D10 提示词 v3–v5：子命令提取只依赖提示词
+
+**背景**
+
+v2 的子命令列表混入了大量文档中的非子命令词（选项值、示例里的单词、章节标题）。曾在程序侧用 `starts_doc_line` 按文档行首过滤，规则越来越多。
+
+**决定**
+
+- 删除程序侧的文档行过滤，子命令提取完全交给提示词（`src/generate/prompts/describe.md`，英文）。
+- 提示词明确：只列文档中作为子命令/动作列出的词；排除选项、选项值、占位符、示例参数、章节标题、相关命令（SEE ALSO）。
+- `PROMPT_VERSION` 升到 5，旧暂存记录全部失效重生成；`PROMPT_DOC_BYTES` 为 16KB。
+- 调用固定 `--json-schema`，`parse_output` 优先读 `structured_output`，回退 `result`。
+
+**理由**
+
+模型从文档识别命令形式的能力足够，程序侧规则维护成本高且误杀真实子命令。假节点可以容忍：推荐有打分，低质量节点不会排到前面；真正没有文档的假节点会被后面的 `--help` 检查挡住。
+
+**遗留问题**
+
+- 未做假节点比例的系统统计，只做了抽查。
+
+## 2026-11-04 D10 并发调用与 --help 检查
+
+**背景**
+
+串行调用 `claude -p` 跑完 git 全树约 10.5 分钟；模型偶尔列出不存在的子命令，入队后浪费一次调用。
+
+**决定**
+
+- 并发：`run_batches` 用 `std::thread::scope` + `AtomicUsize` 取任务 + `Mutex` 槽位，结果按输入顺序返回。文档与提示词仍串行准备（`DocFetch` 不是 `Sync`）。`AgentBackend` 加 `: Sync` 约束。新增配置 `[agent] concurrency`，默认 4，0 视为 1。
+- `--help` 检查（`docs.rs`）：
+  - 根命令 `--help` 仍接受只输出到 stderr 的情况。
+  - 子命令 `--help` 只在输出到 stdout 时算有效（非零退出码但有 stdout 也保留）；嵌套路径再试 `-h`。
+  - 两者都失败时，回退一层到父命令的帮助文本（`subcommand_help` → 父回退 → `Err(Missing)`），失败原因以 debug 记录（`log_help_failure`）。
+  - 无文档的子命令不入队，`discover_children` 记录 `skipped {key}: no doc`。
+
+**理由**
+
+调用耗时主要在模型侧，并发是最直接的提速。只看 stdout 能挡住 git 对未知子命令在 stderr 打印的提示；但 `bisect good`、`submodule add`、`stash list` 这类嵌套子命令本身没有独立 `--help`，第一版检查误跳过了 35 个，因此加 `-h` 与父帮助回退。
+
+**验证**
+
+- 并发 4、无父回退：1138 个节点，252s。
+- 最终（并发 4、含父回退）：`reindex --names git` 退出码 0，302s，`generated 1216, reused 0, removed 0, failed 0`，`merged 1216`。
+- 被跳过的只有 7 个确实未安装的子命令：archimport、citool、cvsexportcommit、cvsimport、gui、instaweb、svn。
+- `bisect good`、`submodule add`、`sparse-checkout list`、`p4 submit`、`stash list` 已生成。
+- 新增 docs 测试 6 项（stderr-only 子命令视为缺失、非零退出有 stdout 保留、`-h` 回退、父帮助回退、无父帮助视为缺失、根命令 stderr 仍接受）；lib 236 项通过，fmt、clippy（`-D warnings`）通过。
+
+**遗留问题**
+
+- 相对串行约 2 倍提速（节点数也从 56 增至 1216，不可直接比）；更高并发是否触发限流未测。
+- `agent_version` 在索引中为 `unknown`，未修。
+- `reindex.log` 中 `already seen` 重复行仍未查清。
+- `git history` 等新版本子命令本机 git 不存在，未覆盖。
+- DESIGN 第 10 节 MCP 已废弃，`whatcmd mcp` 子命令与 rmcp 依赖尚未移除。
+- SiliconFlow key 与 `~/.claude/settings.json` 中的 token 待用户确认后轮换。
+- 以上改动均未提交。
+
+## 2026-11-04 D10 收尾：agent_version、already seen 日志、文档同步
+
+**背景**
+
+并发与 `--help` 检查完成后，剩余遗留项：索引里 `agent_version` 为 `unknown`，`reindex.log` 中 `already seen` 大量重复，DESIGN 第 11、13 节仍有 MCP 与 `--allowedTools` 的旧表述。
+
+**决定**
+
+- `agent_version`：代码本身正确（`cli.rs` 的 `agent_version` 调用 `claude --version` 取第一行）。直接运行 `claude --version` 得到 `2.1.296 (Claude Code)`，测试目录的索引中也已是该值。之前的 `unknown` 来自更早的运行，不需要改代码。
+- `already seen`：这是去重分支，同一子命令被多个父命令或多轮重复列出时才会命中，属于预期行为。删除 `discover_children` 中对应的日志行，去重逻辑不变。
+- 文档：DESIGN 第 11 节（安全）去掉 `--allowedTools`、MCP 参数相关表述，改为 `--tools ""` 承担禁用；第 12 节测试项与新的参数拼装一致；第 13 节待确认项更新为已验证的实际状态，并删除已完成的 rmcp 与 embedding 客户端等过期项。
+
+**验证**
+
+- `cargo fmt --check` 通过。
+- `cargo test --lib` 运行一次：236 项全部通过。此前偶发的一次失败未定位，本轮未处理。
+
+**遗留问题**
+
+- `whatcmd mcp` 子命令与 `rmcp` 依赖仍未移除，等待决定是否在本次提交前清理。
+- `git history` 等新版本子命令本机 git 不存在，未覆盖。
+- 以上改动均未提交，等待确认。

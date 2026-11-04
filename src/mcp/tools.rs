@@ -3,7 +3,9 @@
 //! 工具只写暂存区，不改索引。`path` 必须能在本次 run 的命令树中找到父节点，
 //! 不接受任意路径。rmcp 的注册只做参数转发，见 `mcp` 模块。
 
+use std::collections::HashMap;
 use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
 
 use serde::Deserialize;
 use tracing::warn;
@@ -54,6 +56,10 @@ pub struct ToolContext {
     pub max_depth: usize,
     /// 文档获取配置。
     pub docs: DocsConfig,
+    /// 日志文件。工具拒绝输入时追加一行，`None` 时不写。
+    pub log: Option<PathBuf>,
+    /// 本次 run 内已获取的文档全文，键为 `man <key>` 或 `help <key>`。分页读取时复用，避免每页都执行一次 man 或 --help。
+    pub doc_cache: Arc<Mutex<HashMap<String, String>>>,
 }
 
 /// `write_description` 的参数。
@@ -87,21 +93,68 @@ pub struct ParamArg {
     pub description: String,
 }
 
-/// 读取根命令的 man 页纯文本。命令必须在本次扫描结果中。
-pub fn read_man(name: &str, ctx: &ToolContext) -> Result<String, ToolError> {
+/// 读取根命令 man 页的一页。命令必须在本次扫描结果中。`offset` 为字节偏移，首次读取传 0。
+pub fn read_man(name: &str, offset: usize, ctx: &ToolContext) -> Result<String, ToolError> {
     let name = validate_command(name)?;
     if !ctx.roots.iter().any(|entry| entry.name == name) {
         return Err(ToolError::UnknownCommand(name.as_str().to_owned()));
     }
-    Ok(docs::fetch_man(&name, &ctx.docs)?.text)
+    let text = cached(ctx, format!("man {}", name.as_str()), || {
+        docs::fetch_man(&name, &ctx.docs).map(|doc| doc.text)
+    })?;
+    Ok(page(&text, offset))
 }
 
-/// 读取子命令的 `--help` 输出。父节点必须在命令树中。
-pub fn read_help(path: &[&str], ctx: &ToolContext) -> Result<String, ToolError> {
+/// 读取子命令 `--help` 输出的一页。父节点必须在命令树中。`offset` 为字节偏移，首次读取传 0。
+pub fn read_help(path: &[&str], offset: usize, ctx: &ToolContext) -> Result<String, ToolError> {
     let names = validate_path(path)?;
     ensure_depth(names.len(), ctx)?;
     ensure_parent_visible(&names, ctx)?;
-    Ok(docs::fetch_help(&names, &ctx.docs)?.text)
+    let text = cached(ctx, format!("help {}", key_of(&names)), || {
+        docs::fetch_help(&names, &ctx.docs).map(|doc| doc.text)
+    })?;
+    Ok(page(&text, offset))
+}
+
+/// 每页最多的字节数。
+pub const PAGE_BYTES: usize = 8192;
+
+/// 返回 `text` 从 `offset` 开始的一页。末尾附一行标记：还有后续时给出下一页的 offset，否则标明已到末尾。
+///
+/// `offset` 落在字符中间时向后对齐到字符边界，结束位置向前对齐，保证不切断多字节字符。
+pub fn page(text: &str, offset: usize) -> String {
+    let len = text.len();
+    let mut start = offset.min(len);
+    while !text.is_char_boundary(start) {
+        start += 1;
+    }
+    let mut end = (start + PAGE_BYTES).min(len);
+    while !text.is_char_boundary(end) {
+        end -= 1;
+    }
+    let body = &text[start..end];
+    if end < len {
+        format!("{body}\n[more: {len} bytes total; call again with offset {end} for the next part]")
+    } else {
+        format!("{body}\n[end of document: {len} bytes total]")
+    }
+}
+
+/// 从本次 run 的缓存取文档全文，未命中时调用 `fetch` 并写入缓存。失败不缓存。
+fn cached<F>(ctx: &ToolContext, key: String, fetch: F) -> Result<String, ToolError>
+where
+    F: FnOnce() -> Result<String, DocError>,
+{
+    let mut cache = ctx
+        .doc_cache
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    if let Some(text) = cache.get(&key) {
+        return Ok(text.clone());
+    }
+    let text = fetch()?;
+    cache.insert(key, text.clone());
+    Ok(text)
 }
 
 /// 写入命令节点的描述、示例与子命令到暂存区。
@@ -223,6 +276,8 @@ mod tests {
             known_nodes: vec!["git".to_owned(), "git clone".to_owned()],
             max_depth: 3,
             docs: DocsConfig::default(),
+            log: None,
+            doc_cache: Default::default(),
         }
     }
 
@@ -253,15 +308,44 @@ mod tests {
     }
 
     #[test]
+    fn page_splits_long_text_and_reports_next_offset() {
+        let text = "a".repeat(PAGE_BYTES + 10);
+        let first = page(&text, 0);
+        assert!(first.ends_with(&format!(
+            "[more: {} bytes total; call again with offset {PAGE_BYTES} for the next part]",
+            PAGE_BYTES + 10
+        )));
+        let second = page(&text, PAGE_BYTES);
+        assert_eq!(
+            second,
+            "a".repeat(10) + "\n[end of document: 8202 bytes total]"
+        );
+    }
+
+    #[test]
+    fn page_never_splits_a_multibyte_character() {
+        // "é" 占 2 字节，偏移 1 落在字符中间，应向后对齐到 2。
+        let text = "é".repeat(5000);
+        let got = page(&text, 1);
+        assert!(got.starts_with('é'));
+        assert!(got.contains("[more:"));
+    }
+
+    #[test]
+    fn page_past_end_is_end_marker_only() {
+        assert_eq!(page("abc", 99), "\n[end of document: 3 bytes total]");
+    }
+
+    #[test]
     fn read_man_rejects_unknown_and_invalid_names_before_docs() {
         let dir = tempdir();
         let c = ctx(dir.path());
         assert!(matches!(
-            read_man("nope", &c),
+            read_man("nope", 0, &c),
             Err(ToolError::UnknownCommand(_))
         ));
         assert!(matches!(
-            read_man("-x", &c),
+            read_man("-x", 0, &c),
             Err(ToolError::Guard(GuardError::InvalidName(_)))
         ));
     }
@@ -270,7 +354,7 @@ mod tests {
     fn read_help_enforces_max_depth() {
         let dir = tempdir();
         let c = ctx(dir.path());
-        let err = read_help(&["git", "clone", "a", "b"], &c).unwrap_err();
+        let err = read_help(&["git", "clone", "a", "b"], 0, &c).unwrap_err();
         assert!(matches!(err, ToolError::TooDeep(3)));
     }
 
@@ -278,7 +362,7 @@ mod tests {
     fn read_help_requires_visible_parent() {
         let dir = tempdir();
         let c = ctx(dir.path());
-        let err = read_help(&["git", "pull", "x"], &c).unwrap_err();
+        let err = read_help(&["git", "pull", "x"], 0, &c).unwrap_err();
         assert!(matches!(err, ToolError::NotInTree(ref k) if k == "git pull"));
     }
 
