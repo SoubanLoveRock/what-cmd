@@ -4,6 +4,8 @@
 
 [English](README.md)
 
+![whatcmd cover](docs/cover.png)
+
 ![whatcmd demo](docs/demo.gif)
 
 输入命令的一部分，按 `Ctrl-G`，描述你想做什么，然后选一个候选。whatcmd 会把它插入光标处，从不替你执行任何东西。

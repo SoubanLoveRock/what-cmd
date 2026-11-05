@@ -4,6 +4,8 @@ Find terminal commands by describing them in plain English.
 
 [中文](README.zh-CN.md)
 
+![whatcmd cover](docs/cover.png)
+
 ![whatcmd demo](docs/demo.gif)
 
 Type part of a command, press `Ctrl-G`, describe what you want, and pick a candidate. whatcmd inserts it at the cursor. It never runs anything for you.
