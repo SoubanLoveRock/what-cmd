@@ -35,13 +35,14 @@ const AGENT_TIMEOUT: Duration = Duration::from_secs(600);
 #[derive(Debug, Parser)]
 #[command(
     name = "whatcmd",
+    version,
     about = "Find terminal commands by describing them in English"
 )]
 pub struct Cli {
-    /// 配置文件路径，覆盖 `WHATCMD_CONFIG` 与默认路径。
+    /// Config file path. Overrides `WHATCMD_CONFIG` and the default path.
     #[arg(long)]
     pub config: Option<PathBuf>,
-    /// 子命令。
+    /// Subcommand.
     #[command(subcommand)]
     pub cmd: Command,
 }
@@ -49,32 +50,32 @@ pub struct Cli {
 /// 子命令。
 #[derive(Debug, Subcommand)]
 pub enum Command {
-    /// 锚点解析 + 向量匹配，输出候选行到 stdout。
+    /// Find candidate commands for a plain-English description.
     Query {
-        /// 光标左侧的命令文本（LBUFFER），用于锚点解析。
+        /// Command text left of the cursor (LBUFFER); narrows the search scope.
         #[arg(long, default_value = "")]
         prefix: String,
-        /// 最多输出的候选数。
+        /// Maximum number of candidates.
         #[arg(long, default_value_t = 10)]
         limit: usize,
-        /// 每个候选输出一个 JSON 对象，而不是 tab 分隔行。
+        /// Print one JSON object per candidate instead of tab-separated lines.
         #[arg(long)]
         json: bool,
-        /// 自然语言查询文本，放在 `--` 之后。
+        /// Query text, after `--`.
         #[arg(last = true)]
         text: Vec<String>,
     },
-    /// 记录一次选中，追加到使用记录。
+    /// Record that a candidate was picked (boosts it in later queries).
     Record {
-        /// 被选中的节点 key，如 `git pull`。
+        /// Picked node key, e.g. `git pull`.
         key: String,
     },
-    /// 扫描 PATH，生成描述与参数，写索引。
+    /// Scan PATH, generate descriptions with Claude Code, and rebuild the index.
     Reindex {
-        /// 忽略旧 `source_hash`，非预置节点全部重跑。
+        /// Regenerate every non-seed node, ignoring cached source hashes.
         #[arg(long)]
         full: bool,
-        /// 只重跑列出的节点，可含预置节点，逗号分隔。
+        /// Only regenerate these comma-separated commands (seed nodes allowed).
         #[arg(long, value_delimiter = ',')]
         names: Vec<String>,
     },

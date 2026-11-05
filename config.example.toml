@@ -1,0 +1,25 @@
+# Copy to ~/.config/whatcmd/config.toml (or point WHATCMD_CONFIG at it).
+# The API key is never stored here; whatcmd reads it from the variable named in api_key_env.
+
+[embedding]
+# Any OpenAI-compatible embeddings endpoint. The bundled seed index uses BAAI/bge-m3 at 1024 dimensions;
+# keep these values to use it without running reindex.
+endpoint = "https://api.siliconflow.cn/v1"
+model = "BAAI/bge-m3"
+dimensions = 1024
+api_key_env = "WHATCMD_EMBEDDING_API_KEY"
+timeout_ms = 3000
+
+[paths]
+index_dir = "~/.local/share/whatcmd"
+staging_dir = "~/.cache/whatcmd/staging"
+usage_file = "~/.cache/whatcmd/usage.jsonl"
+
+[agent]
+# reindex calls Claude Code (`claude -p`) with no tools to write descriptions.
+backend = "auto"
+batch_size = 20
+concurrency = 4
+
+[reindex]
+max_depth = 3

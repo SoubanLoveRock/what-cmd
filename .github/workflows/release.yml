@@ -1,0 +1,54 @@
+# Build release archives when a v* tag is pushed and attach them to a GitHub release.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-14
+          - target: x86_64-apple-darwin
+            os: macos-14
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-22.04
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-22.04-arm
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: Test
+        if: matrix.target != 'x86_64-apple-darwin'
+        run: cargo test --release
+      - name: Package
+        run: scripts/package.sh "${{ matrix.target }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: whatcmd-${{ matrix.target }}
+          path: dist/*
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
