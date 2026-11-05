@@ -17,12 +17,6 @@ pub enum Capability {
     NonInteractive,
     /// `--output-format`，输出 JSON。
     JsonOutput,
-    /// `--mcp-config`，加载 whatcmd 的 MCP server。
-    Mcp,
-    /// `--strict-mcp-config`，忽略用户已有的 MCP 配置。
-    StrictMcp,
-    /// `--allowedTools`，放行指定工具。
-    ToolAllowlist,
     /// `--tools`，限定内置工具集。
     RestrictedTools,
     /// `--json-schema`，约束输出结构。

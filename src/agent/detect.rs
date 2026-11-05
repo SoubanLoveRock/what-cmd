@@ -22,15 +22,6 @@ pub fn parse_capabilities(help_text: &str) -> CapabilitySet {
     if has(&["--output-format"]) {
         caps.insert(Capability::JsonOutput);
     }
-    if has(&["--mcp-config"]) {
-        caps.insert(Capability::Mcp);
-    }
-    if has(&["--strict-mcp-config"]) {
-        caps.insert(Capability::StrictMcp);
-    }
-    if has(&["--allowedTools", "--allowed-tools"]) {
-        caps.insert(Capability::ToolAllowlist);
-    }
     if has(&["--tools"]) {
         caps.insert(Capability::RestrictedTools);
     }
@@ -118,7 +109,6 @@ mod tests {
         let text = "  --disallowedTools, --disallowed-tools <tools...>  deny\n  --tools-extra <x>  other\n";
         let caps = parse_capabilities(text);
         assert!(!caps.contains(&Capability::RestrictedTools));
-        assert!(!caps.contains(&Capability::ToolAllowlist));
     }
 
     #[test]
@@ -127,14 +117,6 @@ mod tests {
         let text = "  --other <x>                   see also --tools for details\n";
         let caps = parse_capabilities(text);
         assert!(!caps.contains(&Capability::RestrictedTools));
-    }
-
-    #[test]
-    fn allowed_tools_accepts_either_spelling() {
-        let camel = "  --allowedTools, --allowed-tools <tools...>\n";
-        let kebab = "  --allowed-tools <tools...>\n";
-        assert!(parse_capabilities(camel).contains(&Capability::ToolAllowlist));
-        assert!(parse_capabilities(kebab).contains(&Capability::ToolAllowlist));
     }
 
     #[test]
