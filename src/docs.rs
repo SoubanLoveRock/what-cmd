@@ -255,7 +255,10 @@ mod tests {
     use std::process::{Command, Stdio};
     use std::time::{Duration, Instant};
 
-    use super::{DocError, TRUNCATED_MARK, clean, fetch_help_in, fetch_in, fetch_man_in};
+    use super::{
+        DocError, TRUNCATED_MARK, clean, fetch_help_in as fetch_help_in_once,
+        fetch_in as fetch_in_once, fetch_man_in as fetch_man_in_once,
+    };
     use crate::config::DocsConfig;
     use crate::guard::name::validate_command;
     use crate::testutil::tempdir;
@@ -281,6 +284,50 @@ mod tests {
 
     fn path_of(raw: &[&str]) -> Vec<CommandName> {
         raw.iter().map(|t| name(t)).collect()
+    }
+
+    /// `ETXTBSY`（Text file busy），Linux 与 macOS 上都是 26。
+    ///
+    /// 并行测试中，另一个线程 fork 出的子进程可能在我们刚写完假脚本时仍持有它的写 fd，
+    /// 此时 exec 会失败。这是测试辅助的时序问题，不是生产代码的行为，所以只在测试里重试。
+    const ETXTBSY: i32 = 26;
+
+    /// 遇到 `ETXTBSY` 时短暂重试，其他结果原样返回。
+    fn retry_busy<T>(mut attempt: impl FnMut() -> Result<T, DocError>) -> Result<T, DocError> {
+        let mut tries = 0;
+        loop {
+            match attempt() {
+                Err(DocError::Io(err)) if err.raw_os_error() == Some(ETXTBSY) && tries < 100 => {
+                    tries += 1;
+                    std::thread::sleep(Duration::from_millis(10));
+                }
+                other => return other,
+            }
+        }
+    }
+
+    fn fetch_help_in(
+        path_var: &str,
+        path: &[CommandName],
+        cfg: &DocsConfig,
+    ) -> Result<super::Doc, DocError> {
+        retry_busy(|| fetch_help_in_once(path_var, path, cfg))
+    }
+
+    fn fetch_man_in(
+        path_var: &str,
+        root: &CommandName,
+        cfg: &DocsConfig,
+    ) -> Result<super::Doc, DocError> {
+        retry_busy(|| fetch_man_in_once(path_var, root, cfg))
+    }
+
+    fn fetch_in(
+        path_var: &str,
+        path: &[CommandName],
+        cfg: &DocsConfig,
+    ) -> Result<super::Doc, DocError> {
+        retry_busy(|| fetch_in_once(path_var, path, cfg))
     }
 
     /// 这些测试不检查时序，超时放宽，避免机器负载下假失败。时序由 `timeout_kills_the_whole_process_group` 单独验证。
